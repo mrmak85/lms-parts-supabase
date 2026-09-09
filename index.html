@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRAMEMAC &amp; LMS Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff; --paper-soft:#f6f7f8; --border:#e3e7ea; --border-strong:#d3d9dd;
+    --ink-900:#171b1f; --ink-800:#2b3237; --ink-700:#3a434a; --ink-500:#697680; --ink-400:#8a959d;
+    --amber-600:#b9701f; --amber-500:#d9862a; --amber-400:#e8a04a;
+    --ok-600:#2f7a4d;
+    --font-display:'Bricolage Grotesque', sans-serif;
+    --font-body:'Instrument Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:var(--font-body); background:var(--paper); color:var(--ink-800); min-height:100vh;
+  }
+  .app{min-height:100vh; display:flex; flex-direction:column;}
+
+  .topbar{
+    display:flex; align-items:center; gap:12px; padding:20px 32px;
+    border-bottom:1px solid var(--border); background:var(--paper);
+  }
+  .brand-mark{
+    height:34px; width:auto; flex-shrink:0; display:block;
+  }
+  .brand-text{font-family:var(--font-display); font-weight:600; font-size:18px; color:var(--ink-900);}
+  .brand-sub{font-family:var(--font-mono); font-size:11px; color:var(--ink-500); margin-top:1px;}
+
+  .hero{max-width:1100px; width:100%; margin:0 auto; padding:56px 32px 20px; text-align:center;}
+  .hero-title{font-family:var(--font-display); font-weight:600; font-size:32px; color:var(--ink-900); margin:0 0 10px; letter-spacing:-0.3px;}
+  .hero-desc{font-size:14.5px; color:var(--ink-500); max-width:520px; margin:0 auto; line-height:1.6;}
+
+  .grid-wrap{max-width:1100px; width:100%; margin:0 auto; padding:36px 32px 80px; flex:1;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:20px;}
+
+  .tool-card{
+    position:relative; background:var(--paper); border:1px solid var(--border); border-radius:14px;
+    padding:26px 24px; display:flex; flex-direction:column; gap:14px; text-decoration:none; color:inherit;
+    transition:border-color .18s, transform .18s, box-shadow .18s; cursor:pointer;
+    min-height:190px; box-shadow: 0 1px 2px rgba(23,27,31,0.04);
+  }
+  .tool-card:not(.disabled):hover{
+    border-color:var(--amber-500); transform:translateY(-3px); box-shadow: 0 8px 24px rgba(23,27,31,0.08);
+  }
+  .tool-icon{
+    width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:rgba(217,134,42,0.12); color:var(--amber-600); font-size:20px;
+  }
+  .tool-icon svg{width:22px; height:22px;}
+  .tool-name{font-family:var(--font-display); font-weight:600; font-size:16.5px; color:var(--ink-900); margin:0;}
+  .tool-desc{font-size:12.5px; color:var(--ink-500); line-height:1.55; margin:0; flex:1;}
+  .tool-foot{display:flex; align-items:center; justify-content:space-between; margin-top:auto;}
+  .tool-status{
+    font-family:var(--font-mono); font-size:10.5px; padding:3px 9px; border-radius:20px; display:inline-flex; align-items:center; gap:5px;
+  }
+  .tool-status .dot{width:6px; height:6px; border-radius:50%;}
+  .status-live{background:rgba(47,122,77,0.12); color:var(--ok-600);}
+  .status-live .dot{background:var(--ok-600);}
+  .status-soon{background:var(--paper-soft); color:var(--ink-500);}
+  .status-soon .dot{background:var(--ink-400);}
+  .tool-arrow{color:var(--ink-400); font-size:16px; transition:transform .18s, color .18s;}
+  .tool-card:not(.disabled):hover .tool-arrow{color:var(--amber-600); transform:translateX(3px);}
+
+  .tool-card.disabled{cursor:default; opacity:0.6;}
+  .tool-card.disabled .tool-icon{background:var(--paper-soft); color:var(--ink-400);}
+
+  .section-label{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-400); text-transform:uppercase; letter-spacing:0.6px;
+    margin:0 0 14px;
+  }
+
+  .footnote{font-size:11.5px; color:var(--ink-400); text-align:center; padding:24px; line-height:1.7; border-top:1px solid var(--border);}
+
+  @media (max-width:640px){
+    .topbar{padding:16px 20px;}
+    .hero{padding:40px 20px 10px;}
+    .hero-title{font-size:25px;}
+    .grid-wrap{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <img class="brand-mark" src="/assets/logo-icon.png" alt="FrameMac">
+    <div>
+      <div class="brand-text">FRAMEMAC &amp; LMS Tools</div>
+      <div class="brand-sub">Internal systems &amp; utilities</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1 class="hero-title">The FRAMEMAC &amp; LMS Toolbench</h1>
+    <p class="hero-desc">A single home for the tools that keep production and procurement moving — from spare parts ordering to order status and engineering calculations.</p>
+  </div>
+
+  <div class="grid-wrap">
+    <p class="section-label">Available now</p>
+    <div class="grid">
+
+      <a class="tool-card" href="/spare-parts/">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 0-5.65 5.65L3 18v3h3l6.05-6.05a4 4 0 0 0 5.65-5.65l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+        </div>
+        <div>
+          <h2 class="tool-name">Spare Parts Catalog</h2>
+          <p class="tool-desc">Browse parts, build a selection, and download a PDF to send to your FRAMEMAC &amp; LMS contact.</p>
+        </div>
+        <div class="tool-foot">
+          <span class="tool-status status-live"><span class="dot"></span>Live</span>
+          <span class="tool-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <a class="tool-card" href="/order-tracking/">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
+        </div>
+        <div>
+          <h2 class="tool-name">Order Tracking</h2>
+          <p class="tool-desc">Customers check production status &amp; history. Sales manage their own orders and accounts.</p>
+        </div>
+        <div class="tool-foot">
+          <span class="tool-status status-live"><span class="dot"></span>Live</span>
+          <span class="tool-arrow">&rarr;</span>
+        </div>
+      </a>
+
+    </div>
+
+    <p class="section-label" style="margin-top:36px;">Coming soon</p>
+    <div class="grid">
+
+      <div class="tool-card disabled">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h1M12 10h1M16 10h1M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/></svg>
+        </div>
+        <div>
+          <h2 class="tool-name">Quick Calculators</h2>
+          <p class="tool-desc">Roll-forming machine sizing, material weight, and other quick reference calculators.</p>
+        </div>
+        <div class="tool-foot">
+          <span class="tool-status status-soon"><span class="dot"></span>Coming soon</span>
+        </div>
+      </div>
+
+      <div class="tool-card disabled">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4z"/><path d="M4 6h16l-1.5 14a2 2 0 0 1-2 2H7.5a2 2 0 0 1-2-2L4 6z"/><path d="M9 11h6M9 15h4"/></svg>
+        </div>
+        <div>
+          <h2 class="tool-name">Quotation System</h2>
+          <p class="tool-desc">Build a formal customer quote with line items, terms, and a branded PDF export.</p>
+        </div>
+        <div class="tool-foot">
+          <span class="tool-status status-soon"><span class="dot"></span>Coming soon</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="footnote">FRAMEMAC &amp; LMS Machinery &middot; Internal tools &middot; Contact: Wilson Mai (wilson@lmsmachinery.com)<br><span style="opacity:.7;">&copy; 2026 FRAMEMAC &amp; LMS &middot; Built by Wilson Mai</span></p>
+</div>
+</body>
+</html>
