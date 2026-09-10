@@ -71,6 +71,26 @@
   .card-link{color:var(--safety); font-weight:600;}
   .card.off{opacity:.55;}
 
+  /* card-white: previews the Spare Parts system's own white theme */
+  .card.card-white{ background:#f7f5f0; border-color:#ddd6c7; }
+  .card.card-white:hover{ background:#ffffff; border-color:var(--safety-dim); }
+  .card.card-white .rivet{ background:#b7ae9c; }
+  .card.card-white .card-id{ color:#8a8271; }
+  .card.card-white .card-title{ color:#1c1a17; }
+  .card.card-white .card-desc{ color:#4a453c; }
+  .card.card-white .status-live{ color:#3d7a52; }
+  .card.card-white .card-link{ color:#b9701f; }
+
+  /* card-blue: previews the Order Tracking system's own blue theme */
+  .card.card-blue{ background:#0f1e2e; border-color:#2b4a63; }
+  .card.card-blue:hover{ background:#16283a; border-color:var(--safety); }
+  .card.card-blue .rivet{ background:#5b8fb0; }
+  .card.card-blue .card-id{ color:#8c98a4; }
+  .card.card-blue .card-title{ color:#f7fafc; }
+  .card.card-blue .card-desc{ color:#c7d6e0; }
+  .card.card-blue .status-live{ color:#7fd8a8; }
+  .card.card-blue .card-link{ color:var(--safety); }
+
   .footline{max-width:1120px; margin:0 auto; padding:30px 40px 60px; border-top:2px solid var(--steel-700); font-family:var(--f-mono); font-size:11px; color:var(--steel-500); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; letter-spacing:.3px;}
 
   @media (max-width:820px){
@@ -107,14 +127,14 @@
     <div class="section-head"><span class="section-tag">01</span><h2 class="section-title">Available Now</h2></div>
     <div class="stripe-divider"></div>
     <div class="grid">
-      <a class="card" href="/spare-parts/">
+      <a class="card card-white" href="/spare-parts/">
         <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
         <div class="card-id">SYS-01 / CATALOG</div>
         <h3 class="card-title">Spare Parts Catalog</h3>
         <p class="card-desc">Browse parts, build a selection, download a PDF for your FrameMac &amp; LMS contact.</p>
         <div class="card-foot"><span class="status-live">LIVE</span><span class="card-link">OPEN &rarr;</span></div>
       </a>
-      <a class="card" href="/order-tracking/">
+      <a class="card card-blue" href="/order-tracking/">
         <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
         <div class="card-id">SYS-02 / TRACKING</div>
         <h3 class="card-title">Order Tracking</h3>
