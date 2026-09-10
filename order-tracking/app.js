@@ -33,10 +33,17 @@
   function invokeFn(payload) {
     return supabase.functions.invoke(EDGE_FN, { body: payload }).then(function (res) {
       if (res.error) {
-        var msg = res.error.message || 'Request failed.';
-        // Supabase surfaces our function's JSON error body inside context, when available.
-        if (res.error.context && res.error.context.error) msg = res.error.context.error;
-        throw new Error(msg);
+        // In supabase-js v2, res.error.context is the raw fetch Response
+        // from the Edge Function (not pre-parsed JSON) — we have to read
+        // its body ourselves to see the actual error our function sent.
+        if (res.error.context && typeof res.error.context.json === 'function') {
+          return res.error.context.json().then(function (body) {
+            throw new Error((body && body.error) || res.error.message || 'Request failed.');
+          }, function () {
+            throw new Error(res.error.message || 'Request failed.');
+          });
+        }
+        throw new Error(res.error.message || 'Request failed.');
       }
       if (res.data && res.data.error) throw new Error(res.data.error);
       return res.data;
