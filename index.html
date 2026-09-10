@@ -91,6 +91,16 @@
   .card.card-blue .status-live{ color:#7fd8a8; }
   .card.card-blue .card-link{ color:var(--safety); }
 
+  /* card-calc: previews the Strip Width Calculator's own white + blue theme */
+  .card.card-calc{ background:#f7f5f0; border-color:#ddd6c7; }
+  .card.card-calc:hover{ background:#ffffff; border-color:#0b5fae; }
+  .card.card-calc .rivet{ background:#b7ae9c; }
+  .card.card-calc .card-id{ color:#8a8271; }
+  .card.card-calc .card-title{ color:#1c1a17; }
+  .card.card-calc .card-desc{ color:#4a453c; }
+  .card.card-calc .status-live{ color:#3d7a52; }
+  .card.card-calc .card-link{ color:#0b5fae; }
+
   .footline{max-width:1120px; margin:0 auto; padding:30px 40px 60px; border-top:2px solid var(--steel-700); font-family:var(--f-mono); font-size:11px; color:var(--steel-500); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; letter-spacing:.3px;}
 
   @media (max-width:820px){
@@ -141,7 +151,7 @@
         <p class="card-desc">Customers check production status. Admins manage orders, customers, and accounts.</p>
         <div class="card-foot"><span class="status-live">LIVE</span><span class="card-link">OPEN &rarr;</span></div>
       </a>
-      <a class="card card-white" href="/calculators/">
+      <a class="card card-calc" href="/calculators/">
         <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
         <div class="card-id">SYS-03 / CALC</div>
         <h3 class="card-title">Strip Width Calculator</h3>
