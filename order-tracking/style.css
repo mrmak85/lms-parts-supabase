@@ -16,15 +16,22 @@ body {
   background: var(--ink);
   color: var(--paper-dim);
   min-height: 100vh;
+  position: relative;
   background-image:
     linear-gradient(var(--line-dimmer) 1px, transparent 1px),
     linear-gradient(90deg, var(--line-dimmer) 1px, transparent 1px);
   background-size: 44px 44px; background-attachment: fixed;
 }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url('/assets/logo-watermark.png');
+  background-repeat: no-repeat; background-position: center 55%; background-size: 820px auto;
+  opacity: .05;
+}
 button { font-family: var(--font-body); }
 .boot-msg { padding: 60px; text-align: center; color: var(--steel-dim); font-size: 14px; }
 
-.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app { min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
 
 /* topbar */
 .topbar {
@@ -34,8 +41,8 @@ button { font-family: var(--font-body); }
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-mark {
-  height: 46px; width: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid var(--line); background: var(--ink-deep); position: relative; padding: 6px;
+  height: 60px; width: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--line); background: var(--ink-deep); position: relative; padding: 8px;
 }
 .brand-mark::before, .brand-mark::after { content: ''; position: absolute; width: 5px; height: 5px; border: 1.5px solid var(--safety); }
 .brand-mark::before { top: -3px; left: -3px; border-right: none; border-bottom: none; }

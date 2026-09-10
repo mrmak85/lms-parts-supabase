@@ -127,13 +127,13 @@
         '<div class="stat-row" id="statRow"></div>' +
         '<div class="panel-toolbar"><div class="toolbar-left"><span class="hint">Filter by category</span>' +
         '<select class="filter-select" id="custCatFilter"><option value="all">All Categories</option></select></div></div>' +
-        '<div class="table-wrap"><table><thead><tr><th>Order No.</th><th>Category</th><th>Product</th><th>Start Date</th><th>Est. Completion</th><th>Progress</th><th>Status</th></tr></thead><tbody id="activeOrdersBody"></tbody></table></div>' +
+        '<div class="table-wrap"><table><thead><tr><th>Contract No.</th><th>PO No.</th><th>Category</th><th>Product</th><th>Start Date</th><th>Est. Completion</th><th>Progress</th><th>Status</th></tr></thead><tbody id="activeOrdersBody"></tbody></table></div>' +
         '<div class="history-section">' +
           '<button class="history-toggle" id="histToggle">' +
             '<svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             'Order History<span class="count-badge" id="histCount">0</span>' +
           '</button>' +
-          '<div class="history-body" id="histBody"><div class="table-wrap"><table><thead><tr><th>Order No.</th><th>Category</th><th>Product</th><th>Start Date</th><th>Completed</th><th>Warranty Expires</th><th>Status</th></tr></thead><tbody id="histOrdersBody"></tbody></table></div></div>' +
+          '<div class="history-body" id="histBody"><div class="table-wrap"><table><thead><tr><th>Contract No.</th><th>PO No.</th><th>Category</th><th>Product</th><th>Start Date</th><th>Completed</th><th>Warranty Expires</th><th>Status</th></tr></thead><tbody id="histOrdersBody"></tbody></table></div></div>' +
         '</div>' +
         '<p class="footnote">Completion dates are for reference only; the actual shipping notice is final. Contact: Wilson Mai (wilson@lmsmachinery.com)</p>' +
       '</div>',
@@ -200,20 +200,20 @@
     }).join('');
 
     document.getElementById('activeOrdersBody').innerHTML = active.map(function (o) {
-      return '<tr><td class="order-id">' + esc(o.order_no) + '</td><td class="owner-tag">' + esc(o.category || '-') + '</td><td class="product-name">' + esc(o.product_name) + '</td>' +
+      return '<tr><td class="order-id">' + esc(o.order_no) + '</td><td class="owner-tag">' + esc(o.po_no || '-') + '</td><td class="owner-tag">' + esc(o.category || '-') + '</td><td class="product-name">' + esc(o.product_name) + '</td>' +
         '<td class="date-cell">' + esc(o.start_date) + '</td><td class="date-cell">' + esc(o.eta_date) + '</td>' +
         '<td><div class="progress-cell"><div class="progress-track"><div class="progress-fill" style="width:' + o.progress + '%"></div></div><div class="progress-pct">' + o.progress + '%</div></div></td>' +
         '<td><span class="status-badge status-' + o.status + '"><span class="dot"></span>' + STATUS_LABEL[o.status] + '</span></td></tr>';
-    }).join('') || '<tr><td colspan="7" style="color:var(--steel-dim); text-align:center; padding:26px;">No orders currently in production</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="color:var(--steel-dim); text-align:center; padding:26px;">No orders currently in production</td></tr>';
 
     document.getElementById('histCount').textContent = history.length;
     document.getElementById('histOrdersBody').innerHTML = history.map(function (o) {
       var expired = isExpired(o.warranty_date);
-      return '<tr><td class="order-id">' + esc(o.order_no) + '</td><td class="owner-tag">' + esc(o.category || '-') + '</td><td class="product-name">' + esc(o.product_name) + '</td>' +
+      return '<tr><td class="order-id">' + esc(o.order_no) + '</td><td class="owner-tag">' + esc(o.po_no || '-') + '</td><td class="owner-tag">' + esc(o.category || '-') + '</td><td class="product-name">' + esc(o.product_name) + '</td>' +
         '<td class="date-cell">' + esc(o.start_date) + '</td><td class="date-cell">' + esc(o.eta_date) + '</td>' +
         '<td class="date-cell warranty' + (expired ? ' expired' : '') + '">' + esc(o.warranty_date || '-') + (expired ? ' (expired)' : '') + '</td>' +
         '<td><span class="status-badge status-completed"><span class="dot"></span>Completed</span></td></tr>';
-    }).join('') || '<tr><td colspan="7" style="color:var(--steel-dim); text-align:center; padding:26px;">No order history yet</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="color:var(--steel-dim); text-align:center; padding:26px;">No order history yet</td></tr>';
   }
 
   // ==============================================================
@@ -304,7 +304,7 @@
           '<div class="panel-toolbar"><div class="toolbar-left"><span class="hint"><span id="orderCountHint">0</span> orders total</span>' +
           '<select class="filter-select" id="orderCustFilter"><option value="all">All Customers</option></select></div>' +
           '<button class="primary-btn" id="addOrderBtn">+ New Order</button></div>' +
-          '<div class="table-wrap"><table><thead><tr><th>Order No.</th><th>Customer</th><th>Category</th><th>Product</th><th>Start / Completion</th><th>Status</th><th>Warranty Expires</th><th></th></tr></thead><tbody id="adminOrdersBody"></tbody></table></div>' +
+          '<div class="table-wrap"><table><thead><tr><th>Contract No.</th><th>PO No.</th><th>Customer</th><th>Category</th><th>Product</th><th>Start / Completion</th><th>Status</th><th>Warranty Expires</th><th></th></tr></thead><tbody id="adminOrdersBody"></tbody></table></div>' +
         '</div>' +
         '<div class="tab-panel" id="tabCustomers">' +
           '<div class="panel-toolbar"><span class="hint"><span id="custCountHint">0</span> customer accounts</span>' +
@@ -404,6 +404,7 @@
     document.getElementById('adminOrdersBody').innerHTML = rows.map(function (o) {
       var expired = isExpired(o.warranty_date);
       return '<tr><td class="order-id">' + esc(o.order_no) + '</td>' +
+        '<td class="owner-tag">' + esc(o.po_no || '-') + '</td>' +
         '<td>' + esc(custName(o.customer_id)) + '<br><span class="owner-tag">' + esc(o.customer_id) + '</span></td>' +
         '<td class="owner-tag">' + esc(o.category || '-') + '</td>' +
         '<td class="product-name">' + esc(o.product_name) + '</td>' +
@@ -411,7 +412,7 @@
         '<td><span class="status-badge status-' + o.status + '"><span class="dot"></span>' + STATUS_LABEL[o.status] + '</span></td>' +
         '<td class="date-cell warranty' + (expired ? ' expired' : '') + '">' + esc(o.warranty_date || '-') + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + o.id + '">Edit</button><button class="icon-btn danger" data-confirm="0" data-del="' + o.id + '">Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="8" style="color:var(--steel-dim); text-align:center; padding:26px;">' + (orderCustFilter === 'all' ? 'You have no orders yet' : 'No orders for this customer') + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="color:var(--steel-dim); text-align:center; padding:26px;">' + (orderCustFilter === 'all' ? 'You have no orders yet' : 'No orders for this customer') + '</td></tr>';
 
     document.querySelectorAll('#adminOrdersBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openOrderForm(parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#adminOrdersBody [data-del]').forEach(function (b) {
@@ -435,7 +436,8 @@
     setModal(
       '<h2 class="modal-title">' + (o ? 'Edit Order' : 'New Order') + '</h2>' +
       '<div class="modal-grid">' +
-        '<div class="field full"><label>Order No.</label><input id="f_id" value="' + esc(o ? o.order_no : '') + '"' + (o ? ' disabled' : '') + ' placeholder="e.g. PO-20260902-01"></div>' +
+        '<div class="field full"><label>Contract No.</label><input id="f_id" value="' + esc(o ? o.order_no : '') + '"' + (o ? ' disabled' : '') + ' placeholder="e.g. PO-20260902-01"></div>' +
+        '<div class="field full"><label>PO No.</label><input id="f_po" value="' + esc(o ? (o.po_no || '') : '') + '" placeholder="Customer\'s purchase order number"></div>' +
         '<div class="field full"><label>Customer</label><select id="f_cust">' + custOptions + '</select></div>' +
         '<div class="field full"><label>Product Name</label><input id="f_product" value="' + esc(o ? o.product_name : '') + '"></div>' +
         '<div class="field full"><label>Category</label><select id="f_category">' + catOptions + '</select></div>' +
@@ -451,9 +453,10 @@
     document.getElementById('mCancel').addEventListener('click', closeModal);
     document.getElementById('mSave').addEventListener('click', function () {
       var orderNo = document.getElementById('f_id').value.trim();
-      if (!orderNo) { alert('Please enter an order number'); return; }
+      if (!orderNo) { alert('Please enter a contract number'); return; }
       var payload = {
         order_no: orderNo,
+        po_no: document.getElementById('f_po').value.trim() || null,
         customer_id: document.getElementById('f_cust').value,
         product_name: document.getElementById('f_product').value.trim(),
         category: document.getElementById('f_category').value || null,

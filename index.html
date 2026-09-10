@@ -15,18 +15,25 @@
     --f-display:'Space Grotesk', sans-serif; --f-body:'IBM Plex Sans', sans-serif; --f-mono:'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--ink); color:var(--paper); font-family:var(--f-body); min-height:100vh;
+  body{margin:0; background:var(--ink); color:var(--paper); font-family:var(--f-body); min-height:100vh; position:relative;
     background-image:
       linear-gradient(var(--line-dim) 1px, transparent 1px),
       linear-gradient(90deg, var(--line-dim) 1px, transparent 1px);
     background-size:44px 44px; background-attachment:fixed;
   }
+  body::before{
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url('/assets/logo-watermark.png');
+    background-repeat:no-repeat; background-position:center 55%; background-size:820px auto;
+    opacity:.05;
+  }
+  .page-content{position:relative; z-index:1;}
   a{color:inherit;}
 
   .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 40px; border-bottom:1px solid var(--line-dim);}
   .brand{display:flex; align-items:center; gap:14px;}
-  .brand-mark{width:54px; height:54px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; position:relative; background:var(--ink-deep); padding:6px;}
-  .brand-mark img{width:34px; height:auto; display:block;}
+  .brand-mark{width:68px; height:68px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; position:relative; background:var(--ink-deep); padding:8px;}
+  .brand-mark img{width:44px; height:auto; display:block;}
   .brand-mark::before, .brand-mark::after{content:''; position:absolute; width:6px; height:6px; border:1.5px solid var(--safety);}
   .brand-mark::before{top:-4px; left:-4px; border-right:none; border-bottom:none;}
   .brand-mark::after{bottom:-4px; right:-4px; border-left:none; border-top:none;}
@@ -76,6 +83,7 @@
 </style>
 </head>
 <body>
+<div class="page-content">
 
   <div class="topbar">
     <div class="brand">
@@ -143,5 +151,6 @@
     <span>WILSON MAI &mdash; WILSON@LMSMACHINERY.COM</span>
   </div>
 
+</div>
 </body>
 </html>
