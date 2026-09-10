@@ -49,7 +49,7 @@
       '<div class="app">' +
         '<div class="topbar">' +
           '<div class="brand">' +
-            '<img class="brand-mark" src="/assets/logo-icon.png" alt="FrameMac">' +
+            '<div class="brand-mark"><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
             '<div><div class="brand-text">FRAMEMAC &amp; LMS Spare Parts</div><div class="brand-sub">' + (opts.subtitle || '') + '</div></div>' +
           '</div>' +
           '<div class="topbar-actions"><a class="ghost-link-btn" href="/" style="text-decoration:none;">&larr; Home</a>' + (opts.topbarActions || '') + '</div>' +
@@ -128,12 +128,13 @@
     var grid = document.getElementById('productGrid');
     if (list.length === 0) { grid.innerHTML = '<div class="empty-state">No parts match your filters.</div>'; return; }
 
-    grid.innerHTML = list.map(function (p) {
+    grid.innerHTML = list.map(function (p, idx) {
       var imgHtml = p.image_url ? '<img src="' + esc(p.image_url) + '" alt="" data-zoom="' + esc(p.image_url) + '" onerror="this.parentElement.textContent=\'No image\';">' : 'No image';
       var qty = cart[p.id] || 1;
       var isAdded = !!cart[p.id];
+      var fig = 'FIG.' + String(idx + 1).padStart(2, '0');
       return (
-        '<div class="card"><div class="card-img">' + imgHtml + '</div><div class="card-body">' +
+        '<div class="card"><div class="card-corner"></div><div class="card-img">' + imgHtml + '<span style="position:absolute; bottom:5px; left:7px; font-family:var(--font-mono); font-size:9px; color:var(--ink); opacity:.45;">' + fig + '</span></div><div class="card-body">' +
           '<div class="card-tags"><span class="tag">' + esc(p.category || '-') + '</span><span class="tag">' + esc(p.machine_model || '-') + '</span></div>' +
           '<div class="card-name">' + esc(p.name) + '</div>' +
           '<div class="card-sku">SKU: ' + esc(p.sku) + '</div>' +
@@ -168,7 +169,7 @@
       '<aside class="selection-panel">' +
         '<h2 class="selection-title">Your Selection</h2>' +
         '<div id="cartLines"></div>' +
-        '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">' +
+        '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line-dim);">' +
           '<div class="cart-total-row"><span>Estimated Subtotal</span><span id="cartTotal">$0.00</span></div>' +
           '<div class="cart-note">Excl. shipping &amp; tariffs, confirmed by FRAMEMAC &amp; LMS after receiving your list.</div>' +
         '</div>' +
@@ -544,7 +545,7 @@
         '<td class="owner-tag">' + priceWithUnit(p) + '</td>' +
         '<td>' + (p.active === false ? 'Hidden' : 'Visible') + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + p.id + '">Edit</button><button class="icon-btn danger" data-confirm="0" data-del="' + p.id + '">Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="6" style="color:var(--ink-400); text-align:center; padding:26px;">No products yet</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--steel-dim); text-align:center; padding:26px;">No products yet</td></tr>';
 
     document.querySelectorAll('#prodBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openProductForm(parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#prodBody [data-del]').forEach(function (b) {
@@ -672,7 +673,7 @@
       return '<tr><td>' + esc(c.name) + '</td><td class="owner-tag">' + useCount + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + c.id + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + c.id + '"' + (useCount > 0 ? ' disabled' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="3" style="color:var(--ink-400); text-align:center; padding:26px;">No categories yet</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="color:var(--steel-dim); text-align:center; padding:26px;">No categories yet</td></tr>';
 
     document.querySelectorAll('#catBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openLookupForm('category', parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#catBody [data-del]').forEach(function (b) {
@@ -688,7 +689,7 @@
       return '<tr><td>' + esc(m.name) + '</td><td class="owner-tag">' + useCount + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + m.id + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + m.id + '"' + (useCount > 0 ? ' disabled' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="3" style="color:var(--ink-400); text-align:center; padding:26px;">No machine models yet</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="color:var(--steel-dim); text-align:center; padding:26px;">No machine models yet</td></tr>';
 
     document.querySelectorAll('#modelBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openLookupForm('model', parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#modelBody [data-del]').forEach(function (b) {

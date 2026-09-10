@@ -66,7 +66,7 @@
       '<div class="app">' +
         '<div class="topbar">' +
           '<div class="brand">' +
-            '<img class="brand-mark" src="/assets/logo-icon.png" alt="FrameMac">' +
+            '<div class="brand-mark"><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
             '<div><div class="brand-text">FRAMEMAC &amp; LMS Order Tracking</div><div class="brand-sub">' + (opts.subtitle || '') + '</div></div>' +
           '</div>' +
           '<div class="topbar-actions">' + topbarRight + '</div>' +
@@ -94,10 +94,12 @@
         '<div class="field"><label>Password</label><input type="password" id="custPw" autocomplete="off"></div>' +
         '<button class="login-btn" id="custLoginBtn">Log In</button>' +
         '<button class="back-link" id="toAdminLogin">Sales / Admin Login &rarr;</button>' +
+        '<button class="back-link" id="toBootstrap" style="font-size:11px; opacity:.7;">First-time setup: create the first admin account &rarr;</button>' +
       '</div></div>',
       { subtitle: 'Customer Portal' }
     );
     document.getElementById('toAdminLogin').addEventListener('click', renderAdminLogin);
+    document.getElementById('toBootstrap').addEventListener('click', renderBootstrapAdmin);
 
     function doLogin() {
       var id = document.getElementById('custId').value.trim();
@@ -202,7 +204,7 @@
         '<td class="date-cell">' + esc(o.start_date) + '</td><td class="date-cell">' + esc(o.eta_date) + '</td>' +
         '<td><div class="progress-cell"><div class="progress-track"><div class="progress-fill" style="width:' + o.progress + '%"></div></div><div class="progress-pct">' + o.progress + '%</div></div></td>' +
         '<td><span class="status-badge status-' + o.status + '"><span class="dot"></span>' + STATUS_LABEL[o.status] + '</span></td></tr>';
-    }).join('') || '<tr><td colspan="7" style="color:var(--ink-400); text-align:center; padding:26px;">No orders currently in production</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="color:var(--steel-dim); text-align:center; padding:26px;">No orders currently in production</td></tr>';
 
     document.getElementById('histCount').textContent = history.length;
     document.getElementById('histOrdersBody').innerHTML = history.map(function (o) {
@@ -211,12 +213,46 @@
         '<td class="date-cell">' + esc(o.start_date) + '</td><td class="date-cell">' + esc(o.eta_date) + '</td>' +
         '<td class="date-cell warranty' + (expired ? ' expired' : '') + '">' + esc(o.warranty_date || '-') + (expired ? ' (expired)' : '') + '</td>' +
         '<td><span class="status-badge status-completed"><span class="dot"></span>Completed</span></td></tr>';
-    }).join('') || '<tr><td colspan="7" style="color:var(--ink-400); text-align:center; padding:26px;">No order history yet</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="color:var(--steel-dim); text-align:center; padding:26px;">No order history yet</td></tr>';
   }
 
   // ==============================================================
   // ADMIN (sales rep): login
   // ==============================================================
+  function renderBootstrapAdmin() {
+    shell(
+      '<div class="login-view"><div class="login-card">' +
+        '<h1 class="login-title">First-Time Setup</h1>' +
+        '<p class="login-desc">Create the very first admin account. This only works once — as soon as one admin account exists, this form stops working and you\'ll use the regular Sales / Admin Login instead.</p>' +
+        '<div class="login-error" id="bootErr">Something went wrong.</div>' +
+        '<div class="field"><label>Your Name</label><input type="text" id="bootName" autocomplete="off"></div>' +
+        '<div class="field"><label>Login ID</label><input type="text" id="bootId" autocomplete="off" placeholder="e.g. SALES-01"></div>' +
+        '<div class="field"><label>Password</label><input type="password" id="bootPw" autocomplete="off" placeholder="At least 8 chars, 1 letter + 1 number"></div>' +
+        '<button class="login-btn" id="bootBtn">Create First Admin Account</button>' +
+        '<button class="back-link" id="bootBack">&larr; Back to Home</button>' +
+      '</div></div>',
+      { subtitle: 'First-Time Setup' }
+    );
+    document.getElementById('bootBack').addEventListener('click', renderCustomerLogin);
+
+    document.getElementById('bootBtn').addEventListener('click', function () {
+      var name = document.getElementById('bootName').value.trim();
+      var loginId = document.getElementById('bootId').value.trim();
+      var pw = document.getElementById('bootPw').value;
+      var errEl = document.getElementById('bootErr');
+      errEl.classList.remove('show');
+      if (!name || !loginId || !pw) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+
+      invokeFn({ action: 'bootstrap_admin', login_id: loginId, name: name, password: pw }).then(function () {
+        alert('First admin account created! Please log in with it now.');
+        renderAdminLogin();
+      }).catch(function (e) {
+        errEl.textContent = e.message;
+        errEl.classList.add('show');
+      });
+    });
+  }
+
   function renderAdminLogin() {
     shell(
       '<div class="login-view"><div class="login-card">' +
@@ -375,7 +411,7 @@
         '<td><span class="status-badge status-' + o.status + '"><span class="dot"></span>' + STATUS_LABEL[o.status] + '</span></td>' +
         '<td class="date-cell warranty' + (expired ? ' expired' : '') + '">' + esc(o.warranty_date || '-') + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + o.id + '">Edit</button><button class="icon-btn danger" data-confirm="0" data-del="' + o.id + '">Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="8" style="color:var(--ink-400); text-align:center; padding:26px;">' + (orderCustFilter === 'all' ? 'You have no orders yet' : 'No orders for this customer') + '</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="color:var(--steel-dim); text-align:center; padding:26px;">' + (orderCustFilter === 'all' ? 'You have no orders yet' : 'No orders for this customer') + '</td></tr>';
 
     document.querySelectorAll('#adminOrdersBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openOrderForm(parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#adminOrdersBody [data-del]').forEach(function (b) {
@@ -447,7 +483,7 @@
         '<td class="owner-tag">' + orderCount + ' order(s)</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + esc(c.customer_id) + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + esc(c.customer_id) + '"' + (orderCount > 0 ? ' disabled title="This customer still has orders"' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="4" style="color:var(--ink-400); text-align:center; padding:26px;">You have no customer accounts yet</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="color:var(--steel-dim); text-align:center; padding:26px;">You have no customer accounts yet</td></tr>';
 
     document.querySelectorAll('#adminCustsBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openCustForm(b.dataset.edit); }); });
     document.querySelectorAll('#adminCustsBody [data-del]').forEach(function (b) {
@@ -499,7 +535,7 @@
       return '<tr><td class="product-name">' + esc(cat.name) + '</td><td class="owner-tag">' + useCount + ' order(s)</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + cat.id + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + cat.id + '"' + (useCount > 0 ? ' disabled title="Still used by orders"' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="3" style="color:var(--ink-400); text-align:center; padding:26px;">No categories yet</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="color:var(--steel-dim); text-align:center; padding:26px;">No categories yet</td></tr>';
 
     document.querySelectorAll('#adminCatsBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openCatForm(parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#adminCatsBody [data-del]').forEach(function (b) {
