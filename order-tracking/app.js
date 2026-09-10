@@ -94,12 +94,10 @@
         '<div class="field"><label>Password</label><input type="password" id="custPw" autocomplete="off"></div>' +
         '<button class="login-btn" id="custLoginBtn">Log In</button>' +
         '<button class="back-link" id="toAdminLogin">Sales / Admin Login &rarr;</button>' +
-        '<button class="back-link" id="toBootstrap" style="font-size:11px; opacity:.7;">First-time setup: create the first admin account &rarr;</button>' +
       '</div></div>',
       { subtitle: 'Customer Portal' }
     );
     document.getElementById('toAdminLogin').addEventListener('click', renderAdminLogin);
-    document.getElementById('toBootstrap').addEventListener('click', renderBootstrapAdmin);
 
     function doLogin() {
       var id = document.getElementById('custId').value.trim();
