@@ -57,63 +57,54 @@
   // CUSTOMER: unlock screen
   // ==============================================================
   var currentSlug = null;
-  var currentPassword = null;
   var quoteData = null;
   var selections = {}; // { category_id: option_id } for open categories
   var addonSelections = {}; // { addon_id: true }
 
-  function renderUnlockScreen(slug) {
-    var hasSlug = !!slug;
+  function loadQuoteBySlug(slug) {
+    shell('<div class="boot-msg">Loading your quotation&hellip;</div>', { subtitle: 'Your Quotation' });
+    supabase.rpc('get_quote_details', { p_slug: slug }).then(function (res) {
+      if (res.error || !res.data) { renderLookupScreen('We couldn\'t find a quotation with that reference number. Please check the link or number and try again.'); return; }
+      currentSlug = slug;
+      quoteData = res.data;
+      selections = {};
+      addonSelections = {};
+      (quoteData.open_categories || []).forEach(function (cat) {
+        if (cat.default_option_id) selections[cat.category_id] = cat.default_option_id;
+      });
+      renderQuoteView();
+    });
+  }
+
+  function renderLookupScreen(errorMsg) {
     shell(
       '<div class="login-view"><div class="login-card">' +
         '<span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
-        '<div class="login-eyebrow">' + (hasSlug ? 'Password Required' : 'Find Your Quotation') + '</div>' +
+        '<div class="login-eyebrow">Find Your Quotation</div>' +
         '<h1 class="login-title">View Your Quotation</h1>' +
-        '<p class="login-desc">' + (hasSlug
-          ? 'This link was prepared specifically for you by FrameMac &amp; LMS. Enter the password we provided to view your configuration and pricing.'
-          : 'Enter the quotation reference number and password provided by your FrameMac &amp; LMS contact.') + '</p>' +
-        '<div class="login-error" id="unlockErr">Incorrect details. Please check and try again.</div>' +
-        (hasSlug ? '' : '<div class="field"><label>Quotation Reference Number</label><input type="text" id="refInput" autocomplete="off" placeholder="e.g. cu300-x7f2a"></div>') +
-        '<div class="field"><label>Password</label><input type="password" id="pwInput" autocomplete="off"></div>' +
+        '<p class="login-desc">Enter the quotation reference number provided by your FrameMac &amp; LMS contact.</p>' +
+        '<div class="login-error" id="unlockErr">' + esc(errorMsg || 'Quotation not found. Please check the reference number.') + '</div>' +
+        '<div class="field"><label>Quotation Reference Number</label><input type="text" id="refInput" autocomplete="off" placeholder="e.g. cu300-x7f2a"></div>' +
         '<button class="login-btn" id="unlockBtn">View Quotation</button>' +
-        '<p class="login-note">Don\'t have a password? Contact Wilson Mai &mdash; wilson@lmsmachinery.com</p>' +
-        (hasSlug ? '' : '<button class="back-link" id="toAdminLogin">Staff: Admin Login &rarr;</button>') +
+        '<p class="login-note">Don\'t have your reference number? Contact Wilson Mai &mdash; wilson@lmsmachinery.com</p>' +
+        '<button class="back-link" id="toAdminLogin">Staff: Admin Login &rarr;</button>' +
       '</div></div>',
-      { subtitle: hasSlug ? 'Shared quote link' : 'Customer Access' }
+      { subtitle: 'Customer Access' }
     );
+    if (errorMsg) document.getElementById('unlockErr').classList.add('show');
 
-    if (!hasSlug) {
-      document.getElementById('toAdminLogin').addEventListener('click', renderAdminLogin);
-    }
+    document.getElementById('toAdminLogin').addEventListener('click', renderAdminLogin);
 
-    function doUnlock() {
-      var refSlug = hasSlug ? slug : document.getElementById('refInput').value.trim();
-      var pw = document.getElementById('pwInput').value;
+    function doLookup() {
+      var refSlug = document.getElementById('refInput').value.trim();
       var errEl = document.getElementById('unlockErr');
       errEl.classList.remove('show');
-      if (!hasSlug && !refSlug) { errEl.textContent = 'Please enter your quotation reference number.'; errEl.classList.add('show'); return; }
-      if (!pw) { errEl.textContent = 'Please enter the password.'; errEl.classList.add('show'); return; }
-
-      supabase.rpc('get_quote_details', { p_slug: refSlug, p_password: pw }).then(function (res) {
-        if (res.error || !res.data) {
-          errEl.textContent = 'Incorrect details. Please check and try again.';
-          errEl.classList.add('show');
-          return;
-        }
-        currentSlug = refSlug;
-        currentPassword = pw;
-        quoteData = res.data;
-        selections = {};
-
-        addonSelections = {};
-        (quoteData.open_categories || []).forEach(function (cat) {
-          if (cat.default_option_id) selections[cat.category_id] = cat.default_option_id;
-        });
-        renderQuoteView();
-      });
+      if (!refSlug) { errEl.textContent = 'Please enter your quotation reference number.'; errEl.classList.add('show'); return; }
+      history.replaceState(null, '', '?q=' + encodeURIComponent(refSlug));
+      loadQuoteBySlug(refSlug);
     }
-    document.getElementById('unlockBtn').addEventListener('click', doUnlock);
-    document.getElementById('pwInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') doUnlock(); });
+    document.getElementById('unlockBtn').addEventListener('click', doLookup);
+    document.getElementById('refInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
   }
 
   // ==============================================================
@@ -145,8 +136,23 @@
       }).join('');
     }
 
-    var sectionsHtml = (m.sections || []).map(function (s) {
-      return '<div class="spec-row" style="display:block; padding:12px 0;"><div style="font-weight:600; color:var(--ink-900); margin-bottom:4px;">' + esc(s.name) + '</div><div style="color:var(--ink-600); font-size:12.5px; line-height:1.6;">' + esc(s.description || '') + '</div></div>';
+    var scopeItemsHtml = '';
+    if (m.scope_items && m.scope_items.length) {
+      scopeItemsHtml = '<ol style="margin:0; padding-left:20px; color:var(--ink-600); font-size:13px; line-height:1.9;">' +
+        m.scope_items.map(function (item) { return '<li>' + esc(item) + '</li>'; }).join('') +
+        '</ol>';
+    }
+
+    var sectionCardsHtml = (m.sections || []).map(function (s) {
+      var bulletsHtml = (s.bullets && s.bullets.length)
+        ? '<ul style="margin:10px 0 0; padding-left:20px; color:var(--ink-600); font-size:12.5px; line-height:1.8;">' + s.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>'
+        : '';
+      var imgHtml = s.image_url ? '<img src="' + esc(s.image_url) + '" alt="' + esc(s.name) + '" style="width:100%; max-height:280px; object-fit:contain; background:#f7f8fa; border:1px solid #f2f3f5; border-radius:4px; margin-top:12px;">' : '';
+      return '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+        '<h3 class="card-heading">' + esc(s.name) + ' <span class="lock-badge">FIXED</span></h3>' +
+        (s.description ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6;">' + esc(s.description) + '</p>' : '') +
+        bulletsHtml + imgHtml +
+      '</div>';
     }).join('');
 
     var termsRows = [];
@@ -195,9 +201,10 @@
           '<div>' +
             '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
               '<h3 class="card-heading">Base Machine <span class="lock-badge">FIXED</span></h3>' +
-              (m.description ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:16px;">' + esc(m.description) + '</p>' : '<p class="card-sub">Confirmed for your order &mdash; not adjustable here</p>') +
-              (sectionsHtml ? '<div style="border-top:1px solid #f2f3f5;">' + sectionsHtml + '</div>' : '') +
+              (m.contract_summary ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:14px;">' + esc(m.contract_summary) + '</p>' : (m.description ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:14px;">' + esc(m.description) + '</p>' : '')) +
+              (scopeItemsHtml ? '<div style="border-top:1px solid #f2f3f5; padding-top:12px;"><div style="font-size:11px; font-family:var(--f-mono); color:var(--ink-400); text-transform:uppercase; margin-bottom:8px;">Scope of Supply</div>' + scopeItemsHtml + '</div>' : '') +
             '</div>' +
+            sectionCardsHtml +
             (lockedHtml ? '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
               '<h3 class="card-heading">Confirmed Configuration <span class="lock-badge">FIXED</span></h3>' +
               '<p class="card-sub">Set for your requirements &mdash; not adjustable here</p>' +
@@ -287,19 +294,42 @@
 
     y = 118;
     doc.setTextColor.apply(doc, navy); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5);
-    doc.text('BASE MACHINE', 40, y); y += 16;
+    doc.text('CONTRACT SUMMARY', 40, y); y += 16;
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor.apply(doc, soft);
-    if (m.description) {
-      var descLines = doc.splitTextToSize(m.description, 532);
-      doc.text(descLines, 40, y); y += 13 * descLines.length + 4;
+    var summaryText = m.contract_summary || m.description;
+    if (summaryText) {
+      var descLines = doc.splitTextToSize(summaryText, 532);
+      doc.text(descLines, 40, y); y += 13 * descLines.length + 10;
     }
+
+    if (m.scope_items && m.scope_items.length) {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor.apply(doc, navy);
+      doc.text('SCOPE OF SUPPLY', 40, y); y += 16;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(30, 38, 48);
+      m.scope_items.forEach(function (item, i) {
+        if (y > 700) { doc.addPage(); y = 60; }
+        var itemLines = doc.splitTextToSize((i + 1) + '. ' + item, 522);
+        doc.text(itemLines, 40, y); y += 13 * itemLines.length;
+      });
+      y += 10;
+    }
+
     (m.sections || []).forEach(function (s) {
-      if (y > 700) { doc.addPage(); y = 60; }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(30, 38, 48);
-      doc.text(s.name, 40, y); y += 12;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor.apply(doc, soft);
-      var secLines = doc.splitTextToSize(s.description || '', 522);
-      doc.text(secLines, 48, y); y += 12 * secLines.length + 6;
+      if (y > 660) { doc.addPage(); y = 60; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor.apply(doc, navy);
+      doc.text(s.name.toUpperCase(), 40, y); y += 14;
+      if (s.description) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor.apply(doc, soft);
+        var secDescLines = doc.splitTextToSize(s.description, 522);
+        doc.text(secDescLines, 40, y); y += 12 * secDescLines.length + 4;
+      }
+      (s.bullets || []).forEach(function (b) {
+        if (y > 700) { doc.addPage(); y = 60; }
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(30, 38, 48);
+        var bLines = doc.splitTextToSize('\u2022 ' + b, 512);
+        doc.text(bLines, 48, y); y += 12 * bLines.length;
+      });
+      y += 8;
     });
     y += 6;
 
@@ -373,7 +403,7 @@
     var filename = 'FrameMac_Quote_' + quoteNo.replace(/[^a-zA-Z0-9-]/g, '') + '.pdf';
     doc.save(filename);
 
-    supabase.rpc('record_quote_download', { p_slug: currentSlug, p_password: currentPassword }).catch(function () {});
+    supabase.rpc('record_quote_download', { p_slug: currentSlug }).catch(function () {});
   }
 
 
@@ -445,7 +475,7 @@
           '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Price</th><th>Description</th><th></th></tr></thead><tbody id="addonsBody"></tbody></table></div>' +
         '</div>' +
 
-        '<p class="footnote">Quote links have no login — the link plus the password is what grants access.</p>' +
+        '<p class="footnote">Quote links have no login — the link (or its reference number) is all a customer needs.</p>' +
       '</div>' + modalHtml(),
       { userLabel: 'Loading…', subtitle: 'Admin', topbarActions: '<button class="ghost-btn" id="logoutBtn" style="margin-left:10px;">Log Out</button>' }
     );
@@ -523,30 +553,43 @@
 
   function openMachineForm(id) {
     var m = id ? adminData.machines.filter(function (x) { return x.id === id; })[0] : null;
-    var sections = m ? (m.sections || []).slice() : [];
+    var sections = m ? JSON.parse(JSON.stringify(m.sections || [])) : [];
+    var scopeItems = m ? (m.scope_items || []).slice() : [];
 
+    // ---------- Scope of Supply (simple text list) ----------
+    function scopeRowsHtml() {
+      return scopeItems.map(function (item, i) {
+        return '<div style="display:flex; gap:8px; margin-bottom:6px;">' +
+          '<input data-scope-item="' + i + '" value="' + esc(item) + '" placeholder="e.g. Double-end 18,000 LBS Uncoiler" style="flex:1;">' +
+          '<button type="button" class="ghost-modal-btn" data-scope-remove="' + i + '">&times;</button></div>';
+      }).join('');
+    }
+    function bindScopeEvents() {
+      document.querySelectorAll('[data-scope-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          scopeItems.splice(parseInt(btn.dataset.scopeRemove, 10), 1);
+          document.getElementById('scopeRows').innerHTML = scopeRowsHtml();
+          bindScopeEvents();
+        });
+      });
+    }
+
+    // ---------- Sections (name + description + bullets + image) ----------
     function sectionsRowsHtml() {
       return sections.map(function (s, i) {
-        return '<div style="border:1px solid var(--steel-700); border-radius:4px; padding:10px; margin-bottom:8px;">' +
+        var imgPreview = s.image_url
+          ? '<div style="margin-top:8px;"><img src="' + esc(s.image_url) + '" style="max-width:140px; max-height:100px; border-radius:4px; border:1px solid var(--steel-700); display:block; margin-bottom:6px;"><button type="button" class="ghost-modal-btn" data-sec-img-remove="' + i + '">Remove image</button></div>'
+          : '<div style="margin-top:8px;"><label class="ghost-modal-btn" style="display:inline-block; cursor:pointer;">Upload image<input type="file" accept="image/*" data-sec-img-upload="' + i + '" style="display:none;"></label><span data-sec-img-status="' + i + '" style="font-size:11px; color:var(--steel-500); margin-left:8px;"></span></div>';
+        return '<div style="border:1px solid var(--steel-700); border-radius:4px; padding:12px; margin-bottom:10px;">' +
           '<div style="display:flex; gap:8px; margin-bottom:6px;">' +
-          '<input data-sec-name="' + i + '" value="' + esc(s.name) + '" placeholder="Section name (e.g. Uncoiler)" style="flex:1;">' +
+          '<input data-sec-name="' + i + '" value="' + esc(s.name) + '" placeholder="Section name (e.g. Model CU400 Rollformer)" style="flex:1;">' +
           '<button type="button" class="ghost-modal-btn" data-sec-remove="' + i + '">&times;</button></div>' +
-          '<textarea data-sec-desc="' + i + '" placeholder="Description / specs for this section" rows="2" style="width:100%; background:var(--steel-950); border:1.5px solid var(--steel-700); border-radius:4px; color:#fff; padding:8px 10px; font-family:var(--f-body); font-size:13px;">' + esc(s.description || '') + '</textarea>' +
+          '<input data-sec-desc="' + i + '" value="' + esc(s.description || '') + '" placeholder="Optional one-line intro (e.g. 2 Zones Roll Former Mill includes:)" style="width:100%; margin-bottom:6px;">' +
+          '<textarea data-sec-bullets="' + i + '" placeholder="One bullet point per line" rows="3" style="width:100%; background:var(--steel-950); border:1.5px solid var(--steel-700); border-radius:4px; color:#fff; padding:8px 10px; font-family:var(--f-body); font-size:13px;">' + esc((s.bullets || []).join('\n')) + '</textarea>' +
+          imgPreview +
         '</div>';
       }).join('');
     }
-
-    setModal(
-      '<h2 class="modal-title">' + (m ? 'Edit Machine' : 'New Machine') + '</h2>' +
-      '<div class="field"><label>Machine Name</label><input id="mm_name" value="' + esc(m ? m.name : '') + '" placeholder="e.g. CU300 Roll Forming Machine"></div>' +
-      '<div class="field"><label>Base Price (USD)</label><input id="mm_price" value="' + (m ? m.base_price : '0') + '" inputmode="decimal"></div>' +
-      '<div class="field"><label>Description (shown to the customer as an overview)</label><textarea id="mm_desc" rows="3" placeholder="A high-precision roll forming line built for...">' + esc(m ? m.description : '') + '</textarea></div>' +
-      '<div class="field"><label>Sub-assembly Sections (e.g. Uncoiler, Punching, Controller — shown as fixed reference)</label><div id="sectionsRows">' + sectionsRowsHtml() + '</div>' +
-      '<button type="button" class="ghost-modal-btn" id="addSectionRow">+ Add section</button></div>' +
-      '<div class="modal-actions"><button class="ghost-modal-btn" id="mCancel">Cancel</button><button class="primary-btn" id="mSave">' + (m ? 'Save Changes' : 'Create Machine') + '</button></div>'
-    );
-    openModal();
-
     function bindSectionEvents() {
       document.querySelectorAll('[data-sec-remove]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -555,23 +598,82 @@
           bindSectionEvents();
         });
       });
+      document.querySelectorAll('[data-sec-img-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          sections[parseInt(btn.dataset.secImgRemove, 10)].image_url = null;
+          document.getElementById('sectionsRows').innerHTML = sectionsRowsHtml();
+          bindSectionEvents();
+        });
+      });
+      document.querySelectorAll('[data-sec-img-upload]').forEach(function (input) {
+        input.addEventListener('change', function () {
+          var idx = parseInt(input.dataset.secImgUpload, 10);
+          var file = input.files[0];
+          if (!file) return;
+          if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB.'); return; }
+          var statusEl = document.querySelector('[data-sec-img-status="' + idx + '"]');
+          if (statusEl) statusEl.textContent = 'Uploading…';
+          var ext = (file.name.split('.').pop() || 'png').toLowerCase();
+          var path = 'sections/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+          supabase.storage.from('quotation-images').upload(path, file, { contentType: file.type }).then(function (res) {
+            if (res.error) { alert('Image upload failed: ' + res.error.message); return; }
+            var pub = supabase.storage.from('quotation-images').getPublicUrl(path);
+            sections[idx].image_url = pub.data.publicUrl;
+            document.getElementById('sectionsRows').innerHTML = sectionsRowsHtml();
+            bindSectionEvents();
+          });
+        });
+      });
     }
+
+    setModal(
+      '<h2 class="modal-title">' + (m ? 'Edit Machine' : 'New Machine') + '</h2>' +
+      '<div class="field"><label>Machine Name</label><input id="mm_name" value="' + esc(m ? m.name : '') + '" placeholder="e.g. CU400 Roll Forming Line"></div>' +
+      '<div class="field"><label>Base Price (USD)</label><input id="mm_price" value="' + (m ? m.base_price : '0') + '" inputmode="decimal"></div>' +
+      '<div class="field"><label>Contract Summary (intro paragraph shown to the customer)</label><textarea id="mm_summary" rows="3" placeholder="FrameMac supplies a complete roll forming line with...">' + esc(m ? m.contract_summary : '') + '</textarea></div>' +
+      '<div class="field"><label>Scope of Supply (numbered item list)</label><div id="scopeRows">' + scopeRowsHtml() + '</div>' +
+      '<button type="button" class="ghost-modal-btn" id="addScopeRow">+ Add item</button></div>' +
+      '<div class="field"><label>Sub-assembly Sections (detailed spec pages — e.g. Uncoiler, Rollformer, Controls)</label><div id="sectionsRows">' + sectionsRowsHtml() + '</div>' +
+      '<button type="button" class="ghost-modal-btn" id="addSectionRow">+ Add section</button></div>' +
+      '<div class="modal-actions"><button class="ghost-modal-btn" id="mCancel">Cancel</button><button class="primary-btn" id="mSave">' + (m ? 'Save Changes' : 'Create Machine') + '</button></div>'
+    );
+    openModal();
+
+    bindScopeEvents();
     bindSectionEvents();
+    document.getElementById('addScopeRow').addEventListener('click', function () {
+      scopeItems.push('');
+      document.getElementById('scopeRows').innerHTML = scopeRowsHtml();
+      bindScopeEvents();
+    });
     document.getElementById('addSectionRow').addEventListener('click', function () {
-      sections.push({ name: '', description: '' });
+      sections.push({ name: '', description: '', bullets: [], image_url: null });
       document.getElementById('sectionsRows').innerHTML = sectionsRowsHtml();
       bindSectionEvents();
     });
     document.getElementById('mCancel').addEventListener('click', closeModal);
     document.getElementById('mSave').addEventListener('click', function () {
+      document.querySelectorAll('[data-scope-item]').forEach(function (inp) { scopeItems[parseInt(inp.dataset.scopeItem, 10)] = inp.value.trim(); });
+      var cleanScopeItems = scopeItems.filter(function (s) { return s; });
+
       document.querySelectorAll('[data-sec-name]').forEach(function (inp) { sections[parseInt(inp.dataset.secName, 10)].name = inp.value.trim(); });
-      document.querySelectorAll('[data-sec-desc]').forEach(function (ta) { sections[parseInt(ta.dataset.secDesc, 10)].description = ta.value.trim(); });
+      document.querySelectorAll('[data-sec-desc]').forEach(function (inp) { sections[parseInt(inp.dataset.secDesc, 10)].description = inp.value.trim(); });
+      document.querySelectorAll('[data-sec-bullets]').forEach(function (ta) {
+        var idx = parseInt(ta.dataset.secBullets, 10);
+        sections[idx].bullets = ta.value.split('\n').map(function (b) { return b.trim(); }).filter(function (b) { return b; });
+      });
       var cleanSections = sections.filter(function (s) { return s.name; });
 
       var name = document.getElementById('mm_name').value.trim();
       var price = parseFloat(document.getElementById('mm_price').value.replace(/[^0-9.]/g, '') || '0');
       if (!name) { alert('Please enter a machine name.'); return; }
-      var payload = { name: name, base_price: price, description: document.getElementById('mm_desc').value.trim(), sections: cleanSections };
+      var payload = {
+        name: name,
+        base_price: price,
+        contract_summary: document.getElementById('mm_summary').value.trim(),
+        scope_items: cleanScopeItems,
+        sections: cleanSections
+      };
       var req = m ? supabase.from('quote_machines').update(payload).eq('id', m.id) : supabase.from('quote_machines').insert(payload);
       req.then(function (r) { if (r.error) { alert(r.error.message); return; } closeModal(); loadAdminData(); });
     });
@@ -750,8 +852,7 @@
       '<h2 class="modal-title">New Quote</h2>' +
       '<div class="field"><label>Machine</label><select id="qf_machine">' + machineOptions + '</select></div>' +
       '<div class="field"><label>Customer Reference (internal only — customer never sees this)</label><input id="qf_label" placeholder="e.g. ABC Corp — CU300 inquiry"></div>' +
-      '<div class="field"><label>Password (share this with the customer along with the link)</label><input id="qf_password" placeholder="At least 8 characters"></div>' +
-      '<div class="field"><label>Shareable link slug</label><input id="qf_slug" value="' + slugify(adminData.machines[0] ? adminData.machines[0].name : 'quote') + '-' + Math.random().toString(36).slice(2, 6) + '"></div>' +
+      '<div class="field"><label>Shareable link slug (this is what the customer needs — no password required)</label><input id="qf_slug" value="' + slugify(adminData.machines[0] ? adminData.machines[0].name : 'quote') + '-' + Math.random().toString(36).slice(2, 6) + '"></div>' +
       '<div class="modal-grid">' +
         '<div class="field"><label>Trade Terms</label><input id="qf_trade" value="FOB"></div>' +
         '<div class="field"><label>Lead Time</label><input id="qf_lead" placeholder="e.g. 8-10 weeks after deposit"></div>' +
@@ -787,10 +888,8 @@
     document.getElementById('mSave').addEventListener('click', function () {
       var machineId = parseInt(document.getElementById('qf_machine').value, 10);
       var label = document.getElementById('qf_label').value.trim();
-      var password = document.getElementById('qf_password').value;
       var slug = document.getElementById('qf_slug').value.trim();
 
-      if (!password || password.length < 8) { alert('Please enter a password of at least 8 characters.'); return; }
       if (!slug) { alert('Please enter a link slug.'); return; }
 
       var lockedSelections = {};
@@ -814,27 +913,23 @@
       var leadTime = document.getElementById('qf_lead').value.trim();
       var paymentTerms = document.getElementById('qf_payment').value.trim();
 
-      supabase.rpc('hash_quote_password', { plain: password }).then(function (hashRes) {
-        if (hashRes.error) throw new Error(hashRes.error.message);
-        return supabase.from('quotes').insert({
-          slug: slug,
-          password_hash: hashRes.data,
-          machine_id: machineId,
-          customer_label: label || null,
-          trade_terms: tradeTerms,
-          payment_terms: paymentTerms || null,
-          lead_time: leadTime || null,
-          locked_selections: lockedSelections,
-          open_category_ids: openCategoryIds,
-          default_open_selections: defaultOpenSelections,
-          available_addon_ids: availableAddonIds
-        });
+      supabase.from('quotes').insert({
+        slug: slug,
+        machine_id: machineId,
+        customer_label: label || null,
+        trade_terms: tradeTerms,
+        payment_terms: paymentTerms || null,
+        lead_time: leadTime || null,
+        locked_selections: lockedSelections,
+        open_category_ids: openCategoryIds,
+        default_open_selections: defaultOpenSelections,
+        available_addon_ids: availableAddonIds
       }).then(function (r) {
         if (r.error) throw new Error(r.error.message);
         closeModal();
         loadAdminData();
         var link = window.location.origin + '/quotation/?q=' + slug;
-        alert('Quote created!\n\nLink: ' + link + '\nPassword: ' + password + '\n\nShare both with your customer — copy them now, the password won\'t be shown again.');
+        alert('Quote created!\n\nLink: ' + link + '\n\nShare this link with your customer — no password needed, the link alone lets them view it.');
       }).catch(function (e) { alert(e.message); });
     });
   }
@@ -856,10 +951,10 @@
   // ==============================================================
   function boot() {
     var slug = getSlugFromUrl();
-    if (slug) { renderUnlockScreen(slug); return; }
+    if (slug) { loadQuoteBySlug(slug); return; }
 
     supabase.auth.getSession().then(function (res) {
-      if (res.data && res.data.session) { renderAdminPanel(); } else { renderUnlockScreen(null); }
+      if (res.data && res.data.session) { renderAdminPanel(); } else { renderLookupScreen(); }
     });
   }
 
