@@ -34,7 +34,7 @@
   // ==============================================================
   function shell(bodyHtml, opts) {
     opts = opts || {};
-    var topbarRight = '';
+    var topbarRight = '<a class="ghost-link-btn" href="/">&larr; Home</a>';
     if (opts.userLabel) {
       topbarRight += '<span class="user-chip">' + esc(opts.userLabel) + '</span>';
     }
@@ -63,36 +63,48 @@
   var addonSelections = {}; // { addon_id: true }
 
   function renderUnlockScreen(slug) {
+    var hasSlug = !!slug;
     shell(
       '<div class="login-view"><div class="login-card">' +
         '<span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
-        '<div class="login-eyebrow">Password Required</div>' +
+        '<div class="login-eyebrow">' + (hasSlug ? 'Password Required' : 'Find Your Quotation') + '</div>' +
         '<h1 class="login-title">View Your Quotation</h1>' +
-        '<p class="login-desc">This link was prepared specifically for you by FrameMac &amp; LMS. Enter the password we provided to view your configuration and pricing.</p>' +
-        '<div class="login-error" id="unlockErr">Incorrect password. Please check and try again.</div>' +
+        '<p class="login-desc">' + (hasSlug
+          ? 'This link was prepared specifically for you by FrameMac &amp; LMS. Enter the password we provided to view your configuration and pricing.'
+          : 'Enter the quotation reference number and password provided by your FrameMac &amp; LMS contact.') + '</p>' +
+        '<div class="login-error" id="unlockErr">Incorrect details. Please check and try again.</div>' +
+        (hasSlug ? '' : '<div class="field"><label>Quotation Reference Number</label><input type="text" id="refInput" autocomplete="off" placeholder="e.g. cu300-x7f2a"></div>') +
         '<div class="field"><label>Password</label><input type="password" id="pwInput" autocomplete="off"></div>' +
         '<button class="login-btn" id="unlockBtn">View Quotation</button>' +
         '<p class="login-note">Don\'t have a password? Contact Wilson Mai &mdash; wilson@lmsmachinery.com</p>' +
+        (hasSlug ? '' : '<button class="back-link" id="toAdminLogin">Staff: Admin Login &rarr;</button>') +
       '</div></div>',
-      { subtitle: 'Shared quote link' }
+      { subtitle: hasSlug ? 'Shared quote link' : 'Customer Access' }
     );
 
+    if (!hasSlug) {
+      document.getElementById('toAdminLogin').addEventListener('click', renderAdminLogin);
+    }
+
     function doUnlock() {
+      var refSlug = hasSlug ? slug : document.getElementById('refInput').value.trim();
       var pw = document.getElementById('pwInput').value;
       var errEl = document.getElementById('unlockErr');
       errEl.classList.remove('show');
+      if (!hasSlug && !refSlug) { errEl.textContent = 'Please enter your quotation reference number.'; errEl.classList.add('show'); return; }
       if (!pw) { errEl.textContent = 'Please enter the password.'; errEl.classList.add('show'); return; }
 
-      supabase.rpc('get_quote_details', { p_slug: slug, p_password: pw }).then(function (res) {
+      supabase.rpc('get_quote_details', { p_slug: refSlug, p_password: pw }).then(function (res) {
         if (res.error || !res.data) {
-          errEl.textContent = 'Incorrect password. Please check and try again.';
+          errEl.textContent = 'Incorrect details. Please check and try again.';
           errEl.classList.add('show');
           return;
         }
-        currentSlug = slug;
+        currentSlug = refSlug;
         currentPassword = pw;
         quoteData = res.data;
         selections = {};
+
         addonSelections = {};
         (quoteData.open_categories || []).forEach(function (cat) {
           if (cat.default_option_id) selections[cat.category_id] = cat.default_option_id;
@@ -133,9 +145,14 @@
       }).join('');
     }
 
-    var baseSpecsHtml = (m.base_specs || []).map(function (s) {
-      return '<div class="spec-row"><span>' + esc(s.label) + '</span><span>' + esc(s.value) + '</span></div>';
+    var sectionsHtml = (m.sections || []).map(function (s) {
+      return '<div class="spec-row" style="display:block; padding:12px 0;"><div style="font-weight:600; color:var(--ink-900); margin-bottom:4px;">' + esc(s.name) + '</div><div style="color:var(--ink-600); font-size:12.5px; line-height:1.6;">' + esc(s.description || '') + '</div></div>';
     }).join('');
+
+    var termsRows = [];
+    termsRows.push('<div class="spec-row"><span>Trade Terms</span><span>' + esc(quoteData.trade_terms || 'FOB') + '</span></div>');
+    if (quoteData.payment_terms) termsRows.push('<div class="spec-row"><span>Payment Terms</span><span>' + esc(quoteData.payment_terms) + '</span></div>');
+    if (quoteData.lead_time) termsRows.push('<div class="spec-row"><span>Lead Time</span><span>' + esc(quoteData.lead_time) + '</span></div>');
 
     var openCategoriesHtml = (quoteData.open_categories || []).map(function (cat) {
       var optionsHtml = (cat.options || []).map(function (o) {
@@ -178,8 +195,8 @@
           '<div>' +
             '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
               '<h3 class="card-heading">Base Machine <span class="lock-badge">FIXED</span></h3>' +
-              '<p class="card-sub">Confirmed for your order &mdash; not adjustable here</p>' +
-              '<div class="spec-grid">' + baseSpecsHtml + '</div>' +
+              (m.description ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:16px;">' + esc(m.description) + '</p>' : '<p class="card-sub">Confirmed for your order &mdash; not adjustable here</p>') +
+              (sectionsHtml ? '<div style="border-top:1px solid #f2f3f5;">' + sectionsHtml + '</div>' : '') +
             '</div>' +
             (lockedHtml ? '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
               '<h3 class="card-heading">Confirmed Configuration <span class="lock-badge">FIXED</span></h3>' +
@@ -187,11 +204,16 @@
               '<div class="spec-grid">' + lockedHtml + '</div></div>' : '') +
             openCategoriesHtml +
             addonsHtml +
+            '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+              '<h3 class="card-heading">Terms</h3>' +
+              '<div class="spec-grid">' + termsRows.join('') + '</div>' +
+            '</div>' +
           '</div>' +
           '<div class="summary card" id="summaryCard"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
             '<h3 class="summary-title">Price Summary</h3>' +
             '<div id="summaryLines"></div>' +
             '<div class="summary-total"><span class="label">Total</span><span class="value" id="totalVal">$0</span></div>' +
+            '<div class="shipping-notice">Excludes shipping &amp; tariffs. Quoted ' + esc(quoteData.trade_terms || 'FOB') + '.</div>' +
             '<button class="dl-btn" id="dlBtn">Download PDF Quote</button>' +
             '<p class="dl-note">For your records. This is a cost &amp; feature reference, subject to final confirmation.</p>' +
           '</div>' +
@@ -267,8 +289,19 @@
     doc.setTextColor.apply(doc, navy); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5);
     doc.text('BASE MACHINE', 40, y); y += 16;
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor.apply(doc, soft);
-    (m.base_specs || []).forEach(function (s) { doc.text(s.label + ': ' + s.value, 40, y); y += 13; });
-    y += 10;
+    if (m.description) {
+      var descLines = doc.splitTextToSize(m.description, 532);
+      doc.text(descLines, 40, y); y += 13 * descLines.length + 4;
+    }
+    (m.sections || []).forEach(function (s) {
+      if (y > 700) { doc.addPage(); y = 60; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(30, 38, 48);
+      doc.text(s.name, 40, y); y += 12;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor.apply(doc, soft);
+      var secLines = doc.splitTextToSize(s.description || '', 522);
+      doc.text(secLines, 48, y); y += 12 * secLines.length + 6;
+    });
+    y += 6;
 
     doc.setDrawColor(200, 206, 214); doc.line(40, y, 572, y); y += 20;
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor.apply(doc, navy);
@@ -310,6 +343,28 @@
     doc.text('USD ' + money(calcTotal()), 560, y, { align: 'right' });
 
     y += 36;
+    if (y > 680) { doc.addPage(); y = 60; }
+
+    doc.setFillColor(253, 243, 224); doc.rect(40, y - 12, 532, 22, 'F');
+    doc.setTextColor(180, 120, 20); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    doc.text('Excludes shipping & tariffs. Quoted ' + (quoteData.trade_terms || 'FOB') + '.', 46, y + 3);
+    y += 30;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor.apply(doc, navy);
+    doc.text('Trade Terms: ', 40, y); doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 38, 48);
+    doc.text(quoteData.trade_terms || 'FOB', 100, y); y += 14;
+    if (quoteData.payment_terms) {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, navy); doc.text('Payment Terms: ', 40, y);
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 38, 48);
+      var payLines = doc.splitTextToSize(quoteData.payment_terms, 420);
+      doc.text(payLines, 118, y); y += 14 * payLines.length;
+    }
+    if (quoteData.lead_time) {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, navy); doc.text('Lead Time: ', 40, y);
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 38, 48); doc.text(quoteData.lead_time, 100, y); y += 14;
+    }
+    y += 12;
+
     if (y > 700) { doc.addPage(); y = 60; }
     doc.setTextColor.apply(doc, soft); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
     var closing = doc.splitTextToSize('This is a cost & feature reference only, in USD, subject to final confirmation by our sales team.', 532);
@@ -454,7 +509,7 @@
     document.getElementById('machineCount').textContent = adminData.machines.length;
     document.getElementById('machinesBody').innerHTML = adminData.machines.map(function (m) {
       return '<tr><td style="color:#fff; font-weight:500;">' + esc(m.name) + '</td><td class="owner-tag">' + money(m.base_price) + '</td>' +
-        '<td class="owner-tag">' + (m.base_specs || []).length + ' spec(s)</td>' +
+        '<td class="owner-tag">' + (m.sections || []).length + ' section(s)</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + m.id + '">Edit</button><button class="icon-btn danger" data-confirm="0" data-del="' + m.id + '">Delete</button></div></td></tr>';
     }).join('') || '<tr><td colspan="4" style="color:var(--steel-500); text-align:center; padding:26px;">No machines yet</td></tr>';
 
@@ -468,14 +523,16 @@
 
   function openMachineForm(id) {
     var m = id ? adminData.machines.filter(function (x) { return x.id === id; })[0] : null;
-    var specs = m ? (m.base_specs || []).slice() : [{ label: '', value: '' }];
+    var sections = m ? (m.sections || []).slice() : [];
 
-    function specsRowsHtml() {
-      return specs.map(function (s, i) {
-        return '<div style="display:flex; gap:8px; margin-bottom:8px;">' +
-          '<input data-spec-label="' + i + '" value="' + esc(s.label) + '" placeholder="Label (e.g. Motor)" style="flex:1;">' +
-          '<input data-spec-value="' + i + '" value="' + esc(s.value) + '" placeholder="Value (e.g. 15 kW Servo Drive)" style="flex:1;">' +
-          '<button type="button" class="ghost-modal-btn" data-spec-remove="' + i + '">&times;</button></div>';
+    function sectionsRowsHtml() {
+      return sections.map(function (s, i) {
+        return '<div style="border:1px solid var(--steel-700); border-radius:4px; padding:10px; margin-bottom:8px;">' +
+          '<div style="display:flex; gap:8px; margin-bottom:6px;">' +
+          '<input data-sec-name="' + i + '" value="' + esc(s.name) + '" placeholder="Section name (e.g. Uncoiler)" style="flex:1;">' +
+          '<button type="button" class="ghost-modal-btn" data-sec-remove="' + i + '">&times;</button></div>' +
+          '<textarea data-sec-desc="' + i + '" placeholder="Description / specs for this section" rows="2" style="width:100%; background:var(--steel-950); border:1.5px solid var(--steel-700); border-radius:4px; color:#fff; padding:8px 10px; font-family:var(--f-body); font-size:13px;">' + esc(s.description || '') + '</textarea>' +
+        '</div>';
       }).join('');
     }
 
@@ -483,37 +540,38 @@
       '<h2 class="modal-title">' + (m ? 'Edit Machine' : 'New Machine') + '</h2>' +
       '<div class="field"><label>Machine Name</label><input id="mm_name" value="' + esc(m ? m.name : '') + '" placeholder="e.g. CU300 Roll Forming Machine"></div>' +
       '<div class="field"><label>Base Price (USD)</label><input id="mm_price" value="' + (m ? m.base_price : '0') + '" inputmode="decimal"></div>' +
-      '<div class="field"><label>Base Specs (shown as fixed reference)</label><div id="specsRows">' + specsRowsHtml() + '</div>' +
-      '<button type="button" class="ghost-modal-btn" id="addSpecRow">+ Add spec row</button></div>' +
+      '<div class="field"><label>Description (shown to the customer as an overview)</label><textarea id="mm_desc" rows="3" placeholder="A high-precision roll forming line built for...">' + esc(m ? m.description : '') + '</textarea></div>' +
+      '<div class="field"><label>Sub-assembly Sections (e.g. Uncoiler, Punching, Controller — shown as fixed reference)</label><div id="sectionsRows">' + sectionsRowsHtml() + '</div>' +
+      '<button type="button" class="ghost-modal-btn" id="addSectionRow">+ Add section</button></div>' +
       '<div class="modal-actions"><button class="ghost-modal-btn" id="mCancel">Cancel</button><button class="primary-btn" id="mSave">' + (m ? 'Save Changes' : 'Create Machine') + '</button></div>'
     );
     openModal();
 
-    function bindSpecEvents() {
-      document.querySelectorAll('[data-spec-remove]').forEach(function (btn) {
+    function bindSectionEvents() {
+      document.querySelectorAll('[data-sec-remove]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          specs.splice(parseInt(btn.dataset.specRemove, 10), 1);
-          document.getElementById('specsRows').innerHTML = specsRowsHtml();
-          bindSpecEvents();
+          sections.splice(parseInt(btn.dataset.secRemove, 10), 1);
+          document.getElementById('sectionsRows').innerHTML = sectionsRowsHtml();
+          bindSectionEvents();
         });
       });
     }
-    bindSpecEvents();
-    document.getElementById('addSpecRow').addEventListener('click', function () {
-      specs.push({ label: '', value: '' });
-      document.getElementById('specsRows').innerHTML = specsRowsHtml();
-      bindSpecEvents();
+    bindSectionEvents();
+    document.getElementById('addSectionRow').addEventListener('click', function () {
+      sections.push({ name: '', description: '' });
+      document.getElementById('sectionsRows').innerHTML = sectionsRowsHtml();
+      bindSectionEvents();
     });
     document.getElementById('mCancel').addEventListener('click', closeModal);
     document.getElementById('mSave').addEventListener('click', function () {
-      document.querySelectorAll('[data-spec-label]').forEach(function (inp) { specs[parseInt(inp.dataset.specLabel, 10)].label = inp.value.trim(); });
-      document.querySelectorAll('[data-spec-value]').forEach(function (inp) { specs[parseInt(inp.dataset.specValue, 10)].value = inp.value.trim(); });
-      var cleanSpecs = specs.filter(function (s) { return s.label && s.value; });
+      document.querySelectorAll('[data-sec-name]').forEach(function (inp) { sections[parseInt(inp.dataset.secName, 10)].name = inp.value.trim(); });
+      document.querySelectorAll('[data-sec-desc]').forEach(function (ta) { sections[parseInt(ta.dataset.secDesc, 10)].description = ta.value.trim(); });
+      var cleanSections = sections.filter(function (s) { return s.name; });
 
       var name = document.getElementById('mm_name').value.trim();
       var price = parseFloat(document.getElementById('mm_price').value.replace(/[^0-9.]/g, '') || '0');
       if (!name) { alert('Please enter a machine name.'); return; }
-      var payload = { name: name, base_price: price, base_specs: cleanSpecs };
+      var payload = { name: name, base_price: price, description: document.getElementById('mm_desc').value.trim(), sections: cleanSections };
       var req = m ? supabase.from('quote_machines').update(payload).eq('id', m.id) : supabase.from('quote_machines').insert(payload);
       req.then(function (r) { if (r.error) { alert(r.error.message); return; } closeModal(); loadAdminData(); });
     });
@@ -694,6 +752,11 @@
       '<div class="field"><label>Customer Reference (internal only — customer never sees this)</label><input id="qf_label" placeholder="e.g. ABC Corp — CU300 inquiry"></div>' +
       '<div class="field"><label>Password (share this with the customer along with the link)</label><input id="qf_password" placeholder="At least 8 characters"></div>' +
       '<div class="field"><label>Shareable link slug</label><input id="qf_slug" value="' + slugify(adminData.machines[0] ? adminData.machines[0].name : 'quote') + '-' + Math.random().toString(36).slice(2, 6) + '"></div>' +
+      '<div class="modal-grid">' +
+        '<div class="field"><label>Trade Terms</label><input id="qf_trade" value="FOB"></div>' +
+        '<div class="field"><label>Lead Time</label><input id="qf_lead" placeholder="e.g. 8-10 weeks after deposit"></div>' +
+      '</div>' +
+      '<div class="field"><label>Payment Terms</label><input id="qf_payment" placeholder="e.g. 40% deposit, 60% balance before shipment"></div>' +
       '<div class="field"><label>Configuration categories</label><div id="catBlocks">' + categoryBlocksHtml() + '</div></div>' +
       '<div class="field"><label>Available add-ons for this quote</label>' + addonBoxes + '</div>' +
       '<div class="modal-actions"><button class="ghost-modal-btn" id="mCancel">Cancel</button><button class="primary-btn" id="mSave">Create Quote</button></div>'
@@ -747,6 +810,10 @@
       var availableAddonIds = [];
       document.querySelectorAll('[data-addon-check]:checked').forEach(function (cb) { availableAddonIds.push(parseInt(cb.dataset.addonCheck, 10)); });
 
+      var tradeTerms = document.getElementById('qf_trade').value.trim() || 'FOB';
+      var leadTime = document.getElementById('qf_lead').value.trim();
+      var paymentTerms = document.getElementById('qf_payment').value.trim();
+
       supabase.rpc('hash_quote_password', { plain: password }).then(function (hashRes) {
         if (hashRes.error) throw new Error(hashRes.error.message);
         return supabase.from('quotes').insert({
@@ -754,6 +821,9 @@
           password_hash: hashRes.data,
           machine_id: machineId,
           customer_label: label || null,
+          trade_terms: tradeTerms,
+          payment_terms: paymentTerms || null,
+          lead_time: leadTime || null,
           locked_selections: lockedSelections,
           open_category_ids: openCategoryIds,
           default_open_selections: defaultOpenSelections,
@@ -789,7 +859,7 @@
     if (slug) { renderUnlockScreen(slug); return; }
 
     supabase.auth.getSession().then(function (res) {
-      if (res.data && res.data.session) { renderAdminPanel(); } else { renderAdminLogin(); }
+      if (res.data && res.data.session) { renderAdminPanel(); } else { renderUnlockScreen(null); }
     });
   }
 
