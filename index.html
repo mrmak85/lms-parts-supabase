@@ -101,6 +101,16 @@
   .card.card-calc .status-live{ color:#7fd8a8; }
   .card.card-calc .card-link{ color:#4fc3e8; }
 
+  /* card-quote: dark navy + orange — the Quotation System's own PDF branding */
+  .card.card-quote{ background:#16233a; border-color:#2c3c58; }
+  .card.card-quote:hover{ background:#1c2c47; border-color:#d6620a; }
+  .card.card-quote .rivet{ background:#5a6f94; }
+  .card.card-quote .card-id{ color:#8a9ab8; }
+  .card.card-quote .card-title{ color:#f7fafc; }
+  .card.card-quote .card-desc{ color:#c3ccdd; }
+  .card.card-quote .status-live{ color:#7fd8a8; }
+  .card.card-quote .card-link{ color:#f2a769; }
+
   .footline{max-width:1120px; margin:0 auto; padding:30px 40px 60px; border-top:2px solid var(--steel-700); font-family:var(--f-mono); font-size:11px; color:var(--steel-500); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; letter-spacing:.3px;}
 
   @media (max-width:820px){
@@ -158,20 +168,13 @@
         <p class="card-desc">Work out the flat strip width for a roll-formed profile from its dimensions and bend count.</p>
         <div class="card-foot"><span class="status-live">LIVE</span><span class="card-link">OPEN &rarr;</span></div>
       </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><span class="section-tag" style="background:var(--steel-700); color:var(--paper-dim);">02</span><h2 class="section-title">In Development</h2></div>
-    <div class="stripe-divider"></div>
-    <div class="grid">
-      <div class="card off">
+      <a class="card card-quote" href="/quotation/">
         <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
         <div class="card-id">SYS-04 / QUOTE</div>
         <h3 class="card-title">Quotation System</h3>
-        <p class="card-desc">Line-item customer quotes with terms and a branded PDF export.</p>
-        <div class="card-foot"><span class="status-soon">PENDING</span></div>
-      </div>
+        <p class="card-desc">Shared quote links with configurable options and a branded PDF export.</p>
+        <div class="card-foot"><span class="status-live">LIVE</span><span class="card-link">OPEN &rarr;</span></div>
+      </a>
     </div>
   </div>
 
