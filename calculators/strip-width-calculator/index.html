@@ -28,94 +28,11 @@
 
     <header class="lms-swc-header">
       <h2 class="lms-swc-title">Strip Width Calculator</h2>
-      <p class="lms-swc-subtitle">Enter the profile dimensions to get the flat strip width</p>
+      <p class="lms-swc-subtitle">Works for C, U, V, Z, hat, or any straight-segment profile — build it segment by segment.</p>
     </header>
 
-    <div class="lms-swc-card lms-swc-diagram-card">
-      <h3 class="lms-swc-card-heading">Profile reference</h3>
-      <svg viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#16233a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-          <path d="
-            M 100 90
-            L 100 250
-            Q 100 274 124 274
-            L 400 274
-            Q 424 274 424 250
-            L 424 90
-          "/>
-          <path d="M 100 90 L 148 90"/>
-          <path d="M 376 90 L 424 90"/>
-          <path d="M 112 90 L 112 250 Q 112 262 124 262 L 400 262 Q 412 262 412 250 L 412 90" stroke-width="2" opacity="0.55"/>
-          <path d="M 100 90 L 100 78" stroke-width="2" opacity="0.55"/>
-          <path d="M 424 90 L 424 78" stroke-width="2" opacity="0.55"/>
-          <path d="M 112 90 L 112 82" stroke-width="2" opacity="0.55"/>
-          <path d="M 412 90 L 412 82" stroke-width="2" opacity="0.55"/>
-        </g>
-
-        <g stroke="#0b5fae" stroke-width="1.5" fill="none">
-          <line x1="100" y1="50" x2="130" y2="50"/>
-          <line x1="100" y1="50" x2="100" y2="80"/>
-          <polygon points="97,74 103,74 100,84" fill="#0b5fae"/>
-        </g>
-        <text x="106" y="46" fill="#0b5fae" font-size="17" font-weight="600" font-family="monospace">t</text>
-
-        <g stroke="#0b5fae" stroke-width="1.5" fill="none">
-          <line x1="376" y1="60" x2="424" y2="60"/>
-          <line x1="376" y1="54" x2="376" y2="66"/>
-          <line x1="424" y1="54" x2="424" y2="66"/>
-        </g>
-        <text x="392" y="48" fill="#0b5fae" font-size="17" font-weight="600" font-family="monospace">C</text>
-
-        <g fill="#667085" font-size="15" font-weight="700">
-          <text x="118" y="104">+</text>
-          <text x="118" y="270">+</text>
-          <text x="392" y="104">+</text>
-        </g>
-
-        <g stroke="#0b5fae" stroke-width="1.5" fill="none">
-          <line x1="460" y1="90" x2="460" y2="274"/>
-          <line x1="454" y1="90" x2="466" y2="90"/>
-          <line x1="454" y1="274" x2="466" y2="274"/>
-        </g>
-        <text x="472" y="188" fill="#0b5fae" font-size="17" font-weight="600" font-family="monospace">B</text>
-
-        <g stroke="#0b5fae" stroke-width="1.5" fill="none">
-          <line x1="100" y1="308" x2="424" y2="308"/>
-          <line x1="100" y1="302" x2="100" y2="314"/>
-          <line x1="424" y1="302" x2="424" y2="314"/>
-        </g>
-        <text x="252" y="330" fill="#0b5fae" font-size="17" font-weight="600" font-family="monospace">A</text>
-      </svg>
-      <div class="lms-swc-legend">
-        <span><b>A</b> &mdash; Web</span>
-        <span><b>B</b> &mdash; Leg</span>
-        <span><b>C</b> &mdash; Return</span>
-        <span><b>t</b> &mdash; Thickness</span>
-      </div>
-    </div>
-
     <div class="lms-swc-card">
-      <div class="lms-swc-field">
-        <label>Return (C) (one side)</label>
-        <div class="lms-swc-field-row">
-          <input type="number" data-id="topFlange" value="25" step="any">
-          <span class="lms-swc-unit">mm</span>
-        </div>
-      </div>
-      <div class="lms-swc-field">
-        <label>Leg (B) (one side)</label>
-        <div class="lms-swc-field-row">
-          <input type="number" data-id="sideLeg" value="89" step="any">
-          <span class="lms-swc-unit">mm</span>
-        </div>
-      </div>
-      <div class="lms-swc-field">
-        <label>Web (A)</label>
-        <div class="lms-swc-field-row">
-          <input type="number" data-id="bottomWeb" value="300" step="any">
-          <span class="lms-swc-unit">mm</span>
-        </div>
-      </div>
+      <h3 class="lms-swc-card-heading">Material Settings</h3>
       <div class="lms-swc-field">
         <label>Material thickness (t)</label>
         <div class="lms-swc-field-row">
@@ -124,20 +41,29 @@
         </div>
       </div>
       <div class="lms-swc-field">
-        <label>Number of bends</label>
+        <label>Inside bend radius (R)</label>
         <div class="lms-swc-field-row">
-          <input type="number" data-id="bendCount" value="4" step="1" min="0">
-          <div class="lms-swc-stepper" data-id="bendStepper">&uarr;</div>
-        </div>
-      </div>
-      <div class="lms-swc-field">
-        <label>Deduction per bend</label>
-        <div class="lms-swc-field-row">
-          <input type="number" data-id="bendDeduction" value="2.75" step="any">
+          <input type="number" data-id="radius" value="2" step="any">
           <span class="lms-swc-unit">mm</span>
         </div>
       </div>
-      <div class="lms-swc-calib-note" data-id="calibNote" style="display:none;"></div>
+      <div class="lms-swc-field">
+        <label>K-factor</label>
+        <div class="lms-swc-field-row">
+          <input type="number" data-id="kfactor" value="0.4338" step="any">
+        </div>
+      </div>
+      <div class="lms-swc-field-note">Thickness, radius and K-factor feed the automatic bend deduction estimate below — used for every bend unless you override it individually. Not sure about K-factor? 0.4338 is a common starting point for air bending; use the calibration section further down to refine it against a part you've actually measured.</div>
+    </div>
+
+    <div class="lms-swc-card">
+      <h3 class="lms-swc-card-heading">Profile — segments &amp; bends</h3>
+      <p class="lms-swc-desc">Build the profile in order, edge to edge. Start with the first flat length, then add a bend and the next flat length, and so on.</p>
+      <div id="segBuilder" data-id="segBuilder"></div>
+      <div class="lms-swc-seg-actions">
+        <button type="button" class="lms-swc-btn lms-swc-btn-ghost" data-id="addSegBtn">+ Add Bend &amp; Segment</button>
+        <button type="button" class="lms-swc-btn lms-swc-btn-ghost" data-id="removeSegBtn">Remove Last</button>
+      </div>
     </div>
 
     <div class="lms-swc-card lms-swc-result-card">
@@ -148,11 +74,12 @@
 
     <div class="lms-swc-card lms-swc-calib-card">
       <h3 class="lms-swc-card-heading">Calibrate with a measured strip</h3>
-      <p class="lms-swc-desc">Fill in the return / leg / web / thickness / bend count above for a part whose actual strip width you already know, enter that measured width below, then press Calculate deduction. The tool works out the true deduction per bend for that thickness and remembers it for this session.</p>
+      <p class="lms-swc-desc">Build the profile above for a part whose actual strip width you already know, enter that measured width below, then press Calculate. The tool works out the correction needed per bend for the current thickness and remembers it for this session — applied automatically next time this thickness comes up.</p>
       <div class="lms-swc-calib-input-row">
         <input type="number" data-id="measuredWidth" placeholder="Measured strip width (mm)" step="any">
-        <button type="button" class="lms-swc-btn" data-id="calibBtn">Calculate deduction</button>
+        <button type="button" class="lms-swc-btn" data-id="calibBtn">Calculate correction</button>
       </div>
+      <div class="lms-swc-calib-note" data-id="calibNote" style="display:none;"></div>
       <div class="lms-swc-saved-calib" data-id="savedCalibWrap" style="display:none;">
         <div class="lms-swc-saved-label">Saved calibrations</div>
         <div data-id="savedCalibList"></div>
@@ -160,7 +87,7 @@
     </div>
 
     <footer class="lms-swc-footer">
-      Strip width = sum of outer dimensions &minus; (bend count &times; deduction per bend)<br>
+      Strip width = sum of segment lengths &minus; sum of bend deductions<br>
       &copy; 2026 FRAMEMAC &amp; LMS &middot; Built by Wilson Mai
     </footer>
 
