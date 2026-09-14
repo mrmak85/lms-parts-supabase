@@ -14,10 +14,17 @@ body {
   background: var(--steel-950);
   color: var(--paper-dim);
   min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url('/assets/logo-watermark.png');
+  background-repeat: no-repeat; background-position: center 55%; background-size: 820px auto;
+  opacity: .05;
 }
 button { font-family: var(--f-body); }
 .boot-msg { padding: 60px; text-align: center; color: var(--steel-500); font-size: 14px; }
-.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app { min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
 
 .hazard-bar{height:7px; width:100%; background:repeating-linear-gradient(-45deg, var(--orange), var(--orange) 12px, var(--ink) 12px, var(--ink) 24px);}
 

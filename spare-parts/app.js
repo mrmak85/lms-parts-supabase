@@ -47,9 +47,10 @@
     opts = opts || {};
     root.innerHTML =
       '<div class="app">' +
+        '<div class="hazard-bar"></div>' +
         '<div class="topbar">' +
           '<div class="brand">' +
-            '<img class="brand-mark" src="/assets/logo-icon.png" alt="FrameMac">' +
+            '<div class="brand-mark"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
             '<div><div class="brand-text">FRAMEMAC &amp; LMS Spare Parts</div><div class="brand-sub">' + (opts.subtitle || '') + '</div></div>' +
           '</div>' +
           '<div class="topbar-actions"><a class="ghost-link-btn" href="/" style="text-decoration:none;">&larr; Home</a>' + (opts.topbarActions || '') + '</div>' +
@@ -133,7 +134,7 @@
       var qty = cart[p.id] || 1;
       var isAdded = !!cart[p.id];
       return (
-        '<div class="card"><div class="card-img">' + imgHtml + '</div><div class="card-body">' +
+        '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><div class="card-img">' + imgHtml + '</div><div class="card-body">' +
           '<div class="card-tags"><span class="tag">' + esc(p.category || '-') + '</span><span class="tag">' + esc(p.machine_model || '-') + '</span></div>' +
           '<div class="card-name">' + esc(p.name) + '</div>' +
           '<div class="card-sku">SKU: ' + esc(p.sku) + '</div>' +
@@ -165,10 +166,10 @@
 
   function selectionPanelHtml() {
     return (
-      '<aside class="selection-panel">' +
+      '<aside class="selection-panel"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
         '<h2 class="selection-title">Your Selection</h2>' +
         '<div id="cartLines"></div>' +
-        '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">' +
+        '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--steel-800);">' +
           '<div class="cart-total-row"><span>Estimated Subtotal</span><span id="cartTotal">$0.00</span></div>' +
           '<div class="cart-note">Excl. shipping &amp; tariffs, confirmed by FRAMEMAC &amp; LMS after receiving your list.</div>' +
         '</div>' +
@@ -409,7 +410,7 @@
   // ==============================================================
   function renderAdminLogin() {
     shell(
-      '<div class="login-view"><div class="login-card">' +
+      '<div class="login-view"><div class="login-card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
         '<h1 class="login-title">Admin Login</h1>' +
         '<p class="login-desc">Manage products, categories, machine models, and invoice numbering.</p>' +
         '<div class="login-error" id="loginErr">Incorrect email or password.</div>' +
@@ -544,7 +545,7 @@
         '<td class="owner-tag">' + priceWithUnit(p) + '</td>' +
         '<td>' + (p.active === false ? 'Hidden' : 'Visible') + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + p.id + '">Edit</button><button class="icon-btn danger" data-confirm="0" data-del="' + p.id + '">Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="6" style="color:var(--ink-400); text-align:center; padding:26px;">No products yet</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--steel-500); text-align:center; padding:26px;">No products yet</td></tr>';
 
     document.querySelectorAll('#prodBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openProductForm(parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#prodBody [data-del]').forEach(function (b) {
@@ -672,7 +673,7 @@
       return '<tr><td>' + esc(c.name) + '</td><td class="owner-tag">' + useCount + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + c.id + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + c.id + '"' + (useCount > 0 ? ' disabled' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="3" style="color:var(--ink-400); text-align:center; padding:26px;">No categories yet</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="color:var(--steel-500); text-align:center; padding:26px;">No categories yet</td></tr>';
 
     document.querySelectorAll('#catBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openLookupForm('category', parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#catBody [data-del]').forEach(function (b) {
@@ -688,7 +689,7 @@
       return '<tr><td>' + esc(m.name) + '</td><td class="owner-tag">' + useCount + '</td>' +
         '<td><div class="row-actions"><button class="icon-btn" data-edit="' + m.id + '">Edit</button>' +
         '<button class="icon-btn danger" data-confirm="0" data-del="' + m.id + '"' + (useCount > 0 ? ' disabled' : '') + '>Delete</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="3" style="color:var(--ink-400); text-align:center; padding:26px;">No machine models yet</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="color:var(--steel-500); text-align:center; padding:26px;">No machine models yet</td></tr>';
 
     document.querySelectorAll('#modelBody [data-edit]').forEach(function (b) { b.addEventListener('click', function () { openLookupForm('model', parseInt(b.dataset.edit, 10)); }); });
     document.querySelectorAll('#modelBody [data-del]').forEach(function (b) {

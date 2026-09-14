@@ -1,8 +1,44 @@
-/* Page shell (topbar, body base) comes from the shared /assets/site.css —
-   this file only holds the calculator's own scoped component styles. */
+:root{
+  --steel-950:#161412; --steel-900:#201d1a; --steel-700:#443e34; --steel-500:#8a8172;
+  --paper-dim:#c9c1b1; --safety:#f2c14e; --ink:#17140f;
+  --f-display:'Oswald', sans-serif; --f-body:'Barlow', sans-serif; --f-mono:'IBM Plex Mono', monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--f-body);
+  background: var(--steel-950);
+  color: var(--paper-dim);
+  min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url('/assets/logo-watermark.png');
+  background-repeat: no-repeat; background-position: center 55%; background-size: 760px auto;
+  opacity: .05;
+}
+.hazard-bar{height:7px; width:100%; background:repeating-linear-gradient(-45deg, var(--safety), var(--safety) 12px, var(--ink) 12px, var(--ink) 24px); position:relative; z-index:1;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  padding:18px 32px; background:var(--steel-900); border-bottom:2px solid var(--steel-700);
+  position:relative; z-index:1;
+}
+.brand{display:flex; align-items:center; gap:14px;}
+.brand-mark{width:46px; height:46px; border:2px solid var(--steel-700); display:flex; align-items:center; justify-content:center; position:relative; background:var(--steel-950); padding:6px;}
+.brand-mark img{width:100%; height:auto; display:block;}
+.rivet{position:absolute; width:5px; height:5px; border-radius:50%; background:var(--steel-500);}
+.rivet.tl{top:4px; left:4px;} .rivet.tr{top:4px; right:4px;} .rivet.bl{bottom:4px; left:4px;} .rivet.br{bottom:4px; right:4px;}
+.brand-text{font-family:var(--f-display); font-weight:600; font-size:17px; color:#fff; text-transform:uppercase; letter-spacing:.3px;}
+.brand-sub{font-family:var(--f-mono); font-size:10px; color:var(--steel-500); margin-top:2px;}
+.topbar-actions{display:flex; align-items:center; gap:10px;}
+.ghost-link-btn{background:none; border:1px solid var(--steel-700); color:var(--paper-dim); border-radius:4px; padding:8px 13px; font-size:12px; text-decoration:none; display:inline-block; font-family:var(--f-mono);}
+.ghost-link-btn:hover{border-color:var(--safety); color:#fff;}
 
 /* LMS Strip Width Calculator — styles are scoped under .lms-swc so they
-   never leak into the rest of the page. */
+   never leak into the rest of the page. The calculator card itself stays
+   light/white for legibility of the numbers, sitting on the dark shell
+   above — same "light content on dark chrome" pattern used elsewhere. */
 
 .lms-swc {
   --lms-swc-bg: #ffffff;
@@ -19,7 +55,7 @@
   --lms-swc-radius: 14px;
 
   box-sizing: border-box;
-  background: var(--lms-swc-bg);
+  background: transparent;
   color: var(--lms-swc-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   padding: 36px 20px 60px;
@@ -46,10 +82,10 @@
   font-weight: 700;
   margin: 0 0 8px;
   letter-spacing: -0.01em;
-  color: var(--lms-swc-text);
+  color: #ffffff;
 }
 .lms-swc-subtitle {
-  color: var(--lms-swc-text-dim);
+  color: var(--paper-dim);
   font-size: 14px;
   margin: 0;
 }
@@ -277,7 +313,7 @@
 
 .lms-swc-footer {
   text-align: center;
-  color: var(--lms-swc-text-dim);
+  color: var(--steel-500);
   font-size: 12px;
   margin-top: 24px;
   line-height: 1.7;
