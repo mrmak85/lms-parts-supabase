@@ -30,8 +30,8 @@ button { font-family: var(--f-body); }
 
 .topbar{display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:var(--steel-900); border-bottom:2px solid var(--steel-700); flex-wrap:wrap; gap:12px;}
 .brand{display:flex; align-items:center; gap:14px;}
-.brand-mark{width:46px; height:46px; border:2px solid var(--steel-700); display:flex; align-items:center; justify-content:center; position:relative; background:var(--steel-950); padding:6px;}
-.brand-mark img{width:100%; height:auto; display:block;}
+.brand-mark{display:flex; align-items:center; justify-content:center;}
+.brand-mark img{width:44px; height:auto; display:block;}
 .rivet{position:absolute; width:5px; height:5px; border-radius:50%; background:var(--steel-500);}
 .rivet.tl{top:4px; left:4px;} .rivet.tr{top:4px; right:4px;} .rivet.bl{bottom:4px; left:4px;} .rivet.br{bottom:4px; right:4px;}
 .brand-text{font-family:var(--f-display); font-weight:600; font-size:17px; color:#fff; text-transform:uppercase; letter-spacing:.3px;}

@@ -50,7 +50,7 @@
         '<div class="hazard-bar"></div>' +
         '<div class="topbar">' +
           '<div class="brand">' +
-            '<div class="brand-mark"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
+            '<div class="brand-mark"><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
             '<div><div class="brand-text">FRAMEMAC &amp; LMS Spare Parts</div><div class="brand-sub">' + (opts.subtitle || '') + '</div></div>' +
           '</div>' +
           '<div class="topbar-actions"><a class="ghost-link-btn" href="/" style="text-decoration:none;">&larr; Home</a>' + (opts.topbarActions || '') + '</div>' +

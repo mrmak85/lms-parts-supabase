@@ -44,7 +44,7 @@
         '<div class="hazard-bar"></div>' +
         '<div class="topbar">' +
           '<div class="brand">' +
-            '<div class="brand-mark"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
+            '<div class="brand-mark"><img src="/assets/logo-icon.png" alt="FrameMac"></div>' +
             '<div><div class="brand-text">FrameMac &amp; LMS Quotation</div><div class="brand-sub">' + (opts.subtitle || '') + '</div></div>' +
           '</div>' +
           '<div class="topbar-right">' + topbarRight + '</div>' +

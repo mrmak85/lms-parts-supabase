@@ -27,11 +27,8 @@
 
   .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 40px; border-bottom:2px solid var(--steel-700); background:var(--steel-900);}
   .brand{display:flex; align-items:center; gap:16px;}
-  .brand-mark{
-    width:56px; height:56px; border:2.5px solid var(--steel-700); display:flex; align-items:center; justify-content:center;
-    position:relative; background:var(--steel-950); padding:8px;
-  }
-  .brand-mark img{width:38px; height:auto; display:block;}
+  .brand-mark{ display:flex; align-items:center; justify-content:center; }
+  .brand-mark img{width:48px; height:auto; display:block;}
   .rivet{position:absolute; width:6px; height:6px; border-radius:50%; background:var(--steel-700); box-shadow:inset 0 1px 1px rgba(0,0,0,.5), 0 0.5px 0 rgba(255,255,255,.06);}
   .rivet.tl{top:4px; left:4px;} .rivet.tr{top:4px; right:4px;} .rivet.bl{bottom:4px; left:4px;} .rivet.br{bottom:4px; right:4px;}
   .brand-name{font-family:var(--f-display); font-weight:600; font-size:22px; color:var(--paper); letter-spacing:.5px; text-transform:uppercase;}
@@ -97,7 +94,6 @@
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark">
-        <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
         <img src="/assets/logo-icon.png" alt="FrameMac">
       </div>
       <div><div class="brand-name">FrameMac &amp; LMS</div><div class="brand-sub">TOOLBENCH — INTERNAL SYSTEMS</div></div>
