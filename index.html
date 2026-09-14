@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRAMEMAC & LMS Toolbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .hero { max-width: 1160px; margin: 0 auto; padding: 64px 32px 20px; position: relative; z-index: 1; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: 12px; color: var(--amber-600); margin-bottom: 16px; letter-spacing: .4px; }
+  .hero-title { font-family: var(--font-display); font-weight: 700; font-size: 42px; line-height: 1.1; color: var(--ink-900); margin: 0 0 18px; letter-spacing: -0.5px; max-width: 720px; }
+  .hero-desc { font-size: 15px; color: var(--ink-500); line-height: 1.65; max-width: 520px; }
+  .section { max-width: 1160px; margin: 0 auto; padding: 30px 32px; position: relative; z-index: 1; }
+  .section-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--ink-900); margin: 0 0 20px; }
+  .tool-card { background: var(--paper); border: 1px solid var(--border); border-radius: 12px; padding: 26px; text-decoration: none; display: block; box-shadow: 0 1px 2px rgba(23,27,31,0.04); transition: border-color .15s, box-shadow .15s; }
+  .tool-card:hover { border-color: var(--amber-400); box-shadow: 0 4px 14px rgba(23,27,31,0.08); }
+  .tool-id { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-400); margin-bottom: 12px; }
+  .tool-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--ink-900); margin: 0 0 8px; }
+  .tool-desc { font-size: 13px; color: var(--ink-500); line-height: 1.6; margin: 0 0 18px; }
+  .tool-foot { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+  .status-live { color: var(--ok-500); font-weight: 600; }
+  .status-live::before { content: '\25CF '; }
+  .tool-link { color: var(--amber-600); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page-content">
+
+  <div class="topbar">
+    <div class="brand">
+      <img class="brand-mark" src="/assets/logo-icon.png" alt="FrameMac">
+      <div><div class="brand-text">FRAMEMAC &amp; LMS</div><div class="brand-sub">Toolbench — Internal Systems</div></div>
+    </div>
+    <div class="brand-sub">mai-tool.com</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">SHOP FLOOR INDEX</div>
+    <h1 class="hero-title">Everything running the roll forming floor, in one place.</h1>
+    <p class="hero-desc">Parts ordering, production tracking, quoting, and the tools that keep our roll forming machines — and the people who run them — moving.</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Available Now</h2>
+    <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+      <a class="tool-card" href="/spare-parts/">
+        <div class="tool-id">SYS-01 / CATALOG</div>
+        <h3 class="tool-title">Spare Parts Catalog</h3>
+        <p class="tool-desc">Browse parts, build a selection, download a PDF for your FrameMac &amp; LMS contact.</p>
+        <div class="tool-foot"><span class="status-live">LIVE</span><span class="tool-link">Open &rarr;</span></div>
+      </a>
+      <a class="tool-card" href="/order-tracking/">
+        <div class="tool-id">SYS-02 / TRACKING</div>
+        <h3 class="tool-title">Order Tracking</h3>
+        <p class="tool-desc">Customers check production status. Admins manage orders, customers, and accounts.</p>
+        <div class="tool-foot"><span class="status-live">LIVE</span><span class="tool-link">Open &rarr;</span></div>
+      </a>
+      <a class="tool-card" href="/calculators/">
+        <div class="tool-id">SYS-03 / TOOLS</div>
+        <h3 class="tool-title">Calculators</h3>
+        <p class="tool-desc">Reference calculators for roll forming — starting with strip width, more on the way.</p>
+        <div class="tool-foot"><span class="status-live">LIVE</span><span class="tool-link">Open &rarr;</span></div>
+      </a>
+      <a class="tool-card" href="/quotation/">
+        <div class="tool-id">SYS-04 / QUOTE</div>
+        <h3 class="tool-title">Quotation System</h3>
+        <p class="tool-desc">Shared quote links with configurable options and a branded PDF export.</p>
+        <div class="tool-foot"><span class="status-live">LIVE</span><span class="tool-link">Open &rarr;</span></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="footnote">
+    FRAMEMAC &amp; LMS MACHINERY &middot; WILSON MAI &mdash; WILSON@LMSMACHINERY.COM
+  </div>
+
+</div>
+</body>
+</html>
