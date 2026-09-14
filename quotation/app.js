@@ -78,8 +78,8 @@
 
   function renderLookupScreen(errorMsg) {
     shell(
-      '<div class="login-view"><div class="login-card">' +
-        '<span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+      '<div class="login-view"><div class="login-card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+        '' +
         '<div class="login-eyebrow">Find Your Quotation</div>' +
         '<h1 class="login-title">View Your Quotation</h1>' +
         '<p class="login-desc">Enter the quotation reference number provided by your FrameMac &amp; LMS contact.</p>' +
@@ -202,7 +202,7 @@
             '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
               '<h3 class="card-heading">Base Machine <span class="lock-badge">FIXED</span></h3>' +
               (m.contract_summary ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:14px;">' + esc(m.contract_summary) + '</p>' : (m.description ? '<p class="card-sub" style="color:var(--ink-600); line-height:1.6; margin-bottom:14px;">' + esc(m.description) + '</p>' : '')) +
-              (scopeItemsHtml ? '<div style="border-top:1px solid #f2f3f5; padding-top:12px;"><div style="font-size:11px; font-family:var(--f-mono); color:var(--ink-400); text-transform:uppercase; margin-bottom:8px;">Scope of Supply</div>' + scopeItemsHtml + '</div>' : '') +
+              (scopeItemsHtml ? '<div style="border-top:1px solid #f2f3f5; padding-top:12px;"><div style="font-size:11px; font-family:var(--f-mono); color:var(--steel-500); text-transform:uppercase; margin-bottom:8px;">Scope of Supply</div>' + scopeItemsHtml + '</div>' : '') +
             '</div>' +
             sectionCardsHtml +
             (lockedHtml ? '<div class="card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
@@ -412,8 +412,8 @@
   // ==============================================================
   function renderAdminLogin() {
     shell(
-      '<div class="login-view"><div class="login-card">' +
-        '<span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+      '<div class="login-view"><div class="login-card"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>' +
+        '' +
         '<div class="login-eyebrow">Admin</div>' +
         '<h1 class="login-title">Quotation Admin</h1>' +
         '<p class="login-desc">Manage machines, options, add-ons, and customer quote links. Uses the same login as Order Tracking.</p>' +

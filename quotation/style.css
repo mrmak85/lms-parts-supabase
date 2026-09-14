@@ -114,9 +114,6 @@ button { font-family: var(--f-body); }
 .dl-note{font-size:11px; color:var(--steel-500); text-align:center; margin-top:10px; line-height:1.5;}
 .shipping-notice{background:rgba(242,193,78,0.12); border:1px solid rgba(242,193,78,0.35); color:var(--safety); font-size:11.5px; font-weight:600; text-align:center; padding:9px 10px; border-radius:4px; margin-top:14px; line-height:1.5;}
 
-.empty-state{color:var(--steel-500); text-align:center; padding:40px 20px; font-size:13px;}
-.footnote{font-size:11px; color:var(--steel-500); text-align:center; padding:20px; line-height:1.7; font-family:var(--f-mono);}
-
 /* ---------- admin panel ---------- */
 .page-title{font-family:var(--f-display); font-weight:600; font-size:24px; color:#fff; margin:0 0 6px; text-transform:uppercase;}
 .page-desc{font-size:13.5px; color:var(--steel-500); margin:0 0 24px; line-height:1.6;}
